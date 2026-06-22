@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 392 266" fill="none" aria-label="Capability shape - sphere">
+  <defs>
+    <radialGradient id="sg" cx="50%" cy="45%" r="55%">
+      <stop offset="0" stop-color="#BA99FF"></stop>
+      <stop offset="0.55" stop-color="#778FED"></stop>
+      <stop offset="1" stop-color="#191A1B"></stop>
+    </radialGradient>
+  </defs>
+  <rect width="392" height="266" fill="#242425"></rect>
+  <circle cx="196" cy="133" r="92" fill="url(#sg)"></circle>
+  <g stroke="rgba(255,255,255,0.18)" fill="none">
+    <ellipse cx="196" cy="133" rx="92" ry="22"></ellipse>
+    <ellipse cx="196" cy="133" rx="92" ry="44"></ellipse>
+    <ellipse cx="196" cy="133" rx="92" ry="66"></ellipse>
+    <ellipse cx="196" cy="133" rx="92" ry="88"></ellipse>
+  </g>
+</svg>

@@ -1,0 +1,9 @@
+{
+  "name": "rs-site",
+  "private": true,
+  "description": "Rootstrap website + Ground Truth (pilot for the Ground Truth Blueprint).",
+  "scripts": {
+    "gt:check": "node tools/ground-truth/check.mjs",
+    "gt:explorer": "node tools/ground-truth/build-explorer.mjs"
+  }
+}

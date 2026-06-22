@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 392 266" fill="none" aria-label="Capability shape - circles">
+  <rect width="392" height="266" fill="#242425"></rect>
+  <g fill="none" stroke-width="2">
+    <circle cx="120" cy="133" r="60" stroke="#FFC83F"></circle>
+    <circle cx="196" cy="133" r="60" stroke="#FF99CA"></circle>
+    <circle cx="272" cy="133" r="60" stroke="#99E0FF"></circle>
+    <circle cx="158" cy="133" r="20" fill="#FFC83F" stroke="none" opacity="0.9"></circle>
+    <circle cx="234" cy="133" r="20" fill="#FF99CA" stroke="none" opacity="0.9"></circle>
+  </g>
+</svg>

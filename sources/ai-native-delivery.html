@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivery v2 — Old vs New</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#15141B;
+    --ink-2:#1C1B25;
+    --ink-3:#23222D;
+    --line:#34313F;
+    --paper:#EDEAE2;
+    --dim:#A6A2B0;
+    --old:#CFCBD6;        /* deprecated terms — kept legible */
+    --strike:#FF6A55;     /* strike + danger — high contrast */
+    --live:#4C7BFF;       /* the new / alive */
+    --live-soft:#A8BEFF;
+    --flag:#F7B23B;       /* emphasis */
+    --pad:clamp(22px,5vw,72px);
+    --maxw:1000px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--ink);color:var(--paper);
+    font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+    line-height:1.5;height:100dvh;overflow-y:scroll;scroll-snap-type:y mandatory;
+  }
+
+  /* chrome */
+  .topbar{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:16px var(--pad);
+    font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);
+    pointer-events:none;
+  }
+  .topbar b{color:var(--live)}
+  .topbar .brand{color:var(--paper)}
+  .pbar{position:fixed;top:0;left:0;height:2px;background:var(--live);width:0;z-index:60;transition:width .15s linear}
+
+  .dots{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:50;display:flex;flex-direction:column;gap:11px}
+  .dots a{width:8px;height:8px;border:1px solid var(--line);border-radius:50%;background:transparent;transition:.2s;display:block}
+  .dots a.on{background:var(--live);border-color:var(--live);transform:scale(1.25)}
+  .dots a:focus-visible{outline:2px solid var(--flag);outline-offset:2px}
+  @media (max-width:720px){.dots{display:none}}
+
+  /* slides */
+  .slide{
+    min-height:100dvh;scroll-snap-align:start;
+    display:flex;flex-direction:column;justify-content:center;
+    padding:74px var(--pad) 64px;
+  }
+  .inner{width:100%;max-width:var(--maxw);margin:0 auto}
+
+  /* type */
+  .eyebrow{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--live);margin-bottom:22px;display:flex;align-items:center;gap:10px}
+  .eyebrow .bar{flex:0 0 26px;height:1px;background:var(--live)}
+  h1{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:clamp(36px,7vw,86px);line-height:1.0;letter-spacing:-.02em}
+  h2{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:clamp(28px,4.6vw,52px);line-height:1.04;letter-spacing:-.015em}
+  .sub{font-size:clamp(15px,1.9vw,18px);color:var(--dim);max-width:58ch;margin-top:18px}
+  .sub.sm{font-size:clamp(13.5px,1.6vw,15.5px);margin-top:14px}
+  .pre{font-size:clamp(14px,1.7vw,16px);color:var(--dim);font-weight:500;margin-bottom:6px}
+
+  /* dead names */
+  .deadlist{display:flex;flex-direction:column;gap:clamp(6px,1.2vw,12px);margin-top:6px}
+  .dead{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:clamp(30px,6.4vw,66px);line-height:1.04;letter-spacing:-.02em;color:var(--old);display:flex;align-items:center;gap:16px}
+  .dead .w{position:relative}
+  .dead .w::after{content:"";position:absolute;left:-.02em;right:-.02em;top:53%;height:.08em;background:var(--strike);border-radius:2px;transform:scaleX(0);transform-origin:left;transition:transform .5s cubic-bezier(.5,0,.1,1)}
+  .is-on .dead:nth-child(1) .w::after{transition-delay:.10s}
+  .is-on .dead:nth-child(2) .w::after{transition-delay:.22s}
+  .is-on .dead:nth-child(3) .w::after{transition-delay:.34s}
+  .is-on .dead:nth-child(4) .w::after{transition-delay:.46s}
+  .is-on .dead:nth-child(5) .w::after{transition-delay:.58s}
+  .is-on .dead:nth-child(6) .w::after{transition-delay:.70s}
+  .is-on .dead .w::after{transform:scaleX(1)}
+  .dead .tag{font-family:"JetBrains Mono",monospace;font-weight:500;font-size:clamp(9px,1.2vw,11px);letter-spacing:.18em;color:var(--strike);border:1px solid var(--strike);padding:3px 8px;border-radius:3px;opacity:0;transition:opacity .35s ease .7s}
+  .is-on .dead .tag{opacity:1}
+
+  /* comparison: two columns */
+  .vs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:26px}
+  .col{border:1px solid var(--line);background:var(--ink-2);padding:20px}
+  .col.was{background:transparent;border-color:var(--ink-3)}
+  .col .tag{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px;display:block}
+  .col.was .tag{color:var(--old)}
+  .col.now .tag{color:var(--live)}
+  .col ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+  .col li{font-size:clamp(15px,1.9vw,18px)}
+  .col.was li{color:var(--old)}
+  .col.now li{color:var(--paper);font-weight:500}
+  .col.now li b{color:var(--live);font-weight:600}
+
+  /* mapping rows old -> new */
+  .map{border-top:1px solid var(--line);margin-top:24px}
+  .map .r{display:grid;grid-template-columns:1fr 30px 1fr;align-items:center;padding:12px 0;border-bottom:1px solid var(--ink-3);font-size:clamp(14px,1.9vw,18px)}
+  .map .o{color:var(--old)}
+  .map .a{text-align:center;color:var(--live);font-family:"JetBrains Mono",monospace}
+  .map .n{color:var(--paper);font-weight:500}
+  .map .n b{color:var(--live);font-weight:600}
+
+  /* strike for old terms — legible text, colored line */
+  s{ text-decoration:line-through; text-decoration-color:var(--strike); text-decoration-thickness:2px; color:var(--old) }
+
+  /* highlight cell */
+  .hot{background:rgba(247,178,59,.13);box-shadow:inset 3px 0 0 var(--flag);padding:6px 10px;margin:-6px -10px}
+  .hot b{color:var(--flag)!important}
+
+  /* hero statement */
+  .stmt{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:clamp(34px,6.6vw,82px);line-height:1.0;letter-spacing:-.025em}
+  .stmt .is{color:var(--flag)}
+  .stmt .gt{color:var(--live)}
+
+  /* definition box */
+  .def{border-left:3px solid var(--live);background:linear-gradient(90deg,rgba(76,123,255,.08),transparent 75%);padding:16px 0 16px 20px;margin-top:24px;max-width:70ch}
+  .def .t{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--live);margin-bottom:7px}
+  .def p{font-size:clamp(14px,1.8vw,17px);color:var(--paper)}
+  .def.amber{border-color:var(--flag);background:linear-gradient(90deg,rgba(247,178,59,.09),transparent 75%)}
+  .def.amber .t{color:var(--flag)}
+
+  /* flow chips */
+  .flowwrap{margin-top:22px;display:flex;flex-direction:column;gap:22px}
+  .flowlab{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px}
+  .flowlab.was{color:var(--old)}
+  .flowlab.now{color:var(--live)}
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+  .chip{font-family:"JetBrains Mono",monospace;font-size:clamp(12px,1.6vw,15px);padding:8px 13px;border:1px solid var(--line);white-space:nowrap}
+  .chip.was{color:var(--old)}
+  .chip.now{color:var(--paper);border-color:var(--live)}
+  .chip.loop{color:var(--flag);border-color:var(--flag)}
+  .sep{color:var(--live);font-family:"JetBrains Mono",monospace}
+  .sep.was{color:var(--ink-3);color:#54505f}
+
+  /* mono blocks */
+  .mono{font-family:"JetBrains Mono",monospace;font-size:clamp(13px,1.8vw,16px);border:1px solid var(--line);background:var(--ink-2);padding:16px 18px;line-height:1.7;margin-top:8px}
+  .mono .c{color:var(--dim)}
+  .mono .up{color:var(--live)}
+  .mono .dn{color:var(--strike)}
+  .mono .hl{color:var(--flag)}
+
+  /* tiers */
+  .tiers{border-top:1px solid var(--line);margin-top:22px}
+  .tier{display:grid;grid-template-columns:48px 1fr;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--ink-3)}
+  .tier .code{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:clamp(15px,2.2vw,20px);color:var(--live)}
+  .tier .d{font-size:clamp(14px,1.8vw,18px);font-weight:500}
+  .tier .e{font-size:clamp(12px,1.5vw,14px);color:var(--dim);font-family:"JetBrains Mono",monospace}
+
+  /* small cards grid */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:24px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+  .mini{border:1px solid var(--line);background:var(--ink-2);padding:16px}
+  .mini .h{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:clamp(15px,1.9vw,18px);margin-bottom:6px}
+  .mini .num{font-family:"JetBrains Mono",monospace;color:var(--live);font-size:12px;margin-right:7px;font-weight:500}
+  .meta-card{border-top:2px solid var(--flag)}
+  .meta-card .fields{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--live-soft);margin-bottom:6px}
+  .meta-card .ex{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--dim);line-height:1.65}
+  .ask{border:1px solid var(--live);background:rgba(76,123,255,.07);padding:16px 18px;margin-top:22px}
+  .ask .lab{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--live);margin-bottom:10px;display:block}
+  .ask .qq{font-family:"JetBrains Mono",monospace;font-size:clamp(12.5px,1.6vw,15px);color:var(--paper);padding:5px 0;display:flex;gap:9px}
+  .ask .qq::before{content:">";color:var(--live)}
+  .mini p{font-size:clamp(12.5px,1.5vw,14px);color:var(--dim)}
+
+  /* levers */
+  .levers{margin-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .lv{display:flex;gap:12px;align-items:baseline;border:1px solid var(--line);padding:13px 15px}
+  .lv .n{font-family:"JetBrains Mono",monospace;color:var(--live);font-size:13px}
+  .lv span.t{font-weight:500;font-size:clamp(14px,1.7vw,16px)}
+
+  /* questions */
+  .q{padding:16px 0;border-top:1px solid var(--line);display:flex;gap:14px;align-items:baseline}
+  .q .qn{font-family:"JetBrains Mono",monospace;color:var(--flag);font-size:13px}
+  .q p{font-family:"Bricolage Grotesque",sans-serif;font-weight:500;font-size:clamp(16px,2.1vw,22px);letter-spacing:-.01em}
+
+  .hint{margin-top:34px;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--old);display:flex;align-items:center;gap:10px}
+  .hint .k{border:1px solid var(--line);padding:2px 8px;color:var(--dim)}
+
+  .close-stmt{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:clamp(24px,4vw,46px);line-height:1.1;letter-spacing:-.02em;max-width:26ch}
+  .close-stmt .live{color:var(--live)}
+
+  /* clarity points */
+  .points{list-style:none;margin-top:24px;display:flex;flex-direction:column;gap:11px;max-width:62ch}
+  .points li{position:relative;padding-left:22px;font-size:clamp(15px,1.9vw,18px);color:var(--paper)}
+  .points li::before{content:"";position:absolute;left:0;top:.62em;width:9px;height:2px;background:var(--live)}
+  .points li b{color:var(--live);font-weight:600}
+
+  /* vertical flow */
+  .vflow{margin-top:24px;display:flex;flex-direction:column;align-items:flex-start;gap:0}
+  .vstep{font-family:"JetBrains Mono",monospace;font-size:clamp(13px,1.8vw,16px);padding:9px 15px;border:1px solid var(--line);color:var(--paper)}
+  .vstep.end{border-color:var(--live);color:var(--live);font-weight:700}
+  .vdown{color:var(--live);font-family:"JetBrains Mono",monospace;line-height:1.35;padding:4px 0 4px 17px;font-size:14px}
+
+  /* emphasized line */
+  .line{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:clamp(20px,3.3vw,36px);line-height:1.12;letter-spacing:-.015em;margin-top:28px;max-width:24ch}
+  .line .live{color:var(--live)}
+
+  /* fade-in */
+  .inner>*{opacity:0;transform:translateY(14px)}
+  .is-on .inner>*{opacity:1;transform:none;transition:opacity .55s ease,transform .55s cubic-bezier(.3,0,.1,1)}
+  .is-on .inner>*:nth-child(2){transition-delay:.05s}
+  .is-on .inner>*:nth-child(3){transition-delay:.10s}
+  .is-on .inner>*:nth-child(4){transition-delay:.15s}
+  .is-on .inner>*:nth-child(5){transition-delay:.20s}
+
+  @media (max-width:720px){
+    .vs{grid-template-columns:1fr}
+    .map .r{grid-template-columns:1fr;gap:2px;padding:14px 0}
+    .map .a{display:none}
+    .map .n::before{content:"↳ ";color:var(--live)}
+    .cards{grid-template-columns:1fr}
+    .grid2{grid-template-columns:1fr}
+    .levers{grid-template-columns:1fr}
+    .dead{font-size:clamp(30px,9.5vw,46px);gap:10px}
+    .dead .tag{display:none}
+    .slide{justify-content:flex-start;padding-top:84px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .inner>*,.dead .w::after,.dead .tag{transition:none!important;transform:none!important;opacity:1!important}
+    .dead .w::after{transform:scaleX(1)!important}
+  }
+</style>
+</head>
+<body>
+
+<div class="pbar" id="pbar"></div>
+<div class="topbar">
+  <span class="brand"><b>Rootstrap</b> · Delivery v2</span>
+  <span>Internal draft</span>
+</div>
+<nav class="dots" id="dots" aria-label="Slides"></nav>
+<section class="slide" id="s1">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>For internal discussion</div>
+    <h1>How we work,<br>what we sell,<br>where the margin is.</h1>
+    <p class="sub">A working draft. Old model on the left, new model on the right — and the parts that are genuinely hard.</p>
+    <div class="hint"><span class="k">↓</span> Scroll to move</div>
+  </div>
+</section>
+
+<section class="slide" id="s3">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>01 · The scarce resource changed</div>
+    <h2>The scarce resource changed.</h2>
+    <div class="vs">
+      <div class="col was"><span class="tag">— Before</span><ul><li>The hard, expensive part was building software</li><li>Scarce: engineering capacity</li></ul></div>
+      <div class="col now"><span class="tag">Now</span><ul><li>The hard part is <b>understanding what to build</b></li><li>Scarce: clarity, architecture, knowledge</li></ul></div>
+    </div>
+    <p class="sub sm"><b>Producing code is becoming dramatically cheaper.</b> Deciding what is worth producing — and keeping it coherent — is not.</p>
+  </div>
+</section>
+
+<section class="slide" id="s2">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>02 · Dead names</div>
+    <p class="pre">So the vocabulary we built the company around is now dead:</p>
+    <div class="deadlist">
+      <div class="dead"><span class="w">Scrum</span><span class="tag">DEAD</span></div>
+      <div class="dead"><span class="w">Agile</span><span class="tag">DEAD</span></div>
+      <div class="dead"><span class="w">Sprints</span><span class="tag">DEAD</span></div>
+      <div class="dead"><span class="w">Backlog</span><span class="tag">DEAD</span></div>
+      <div class="dead"><span class="w">Story points</span><span class="tag">DEAD</span></div>
+      <div class="dead"><span class="w">Velocity</span><span class="tag">DEAD</span></div>
+    </div>
+    <p class="sub sm">All of it existed to ration one scarce thing: engineering capacity. That scarcity is largely gone.</p>
+  </div>
+</section>
+
+<section class="slide" id="scost">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>03 · The expensive part moved</div>
+    <h2>The expensive part moved.</h2>
+    <p class="sub">Implementation and rework are cheap now, so we can build more variations, faster. The cost sits upstream of the code.</p>
+    <div class="vs">
+      <div class="col was"><span class="tag">— Cheap now</span><ul><li>Implementation</li><li>Rework</li><li>Trying many variations</li></ul></div>
+      <div class="col now"><span class="tag">Expensive now</span><ul><li><b>Being wrong about the business reality we build from</b></li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="strend">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>04 · The trend is bigger than us</div>
+    <h2>The trend is bigger than us.</h2>
+    <p class="sub sm">This shift isn't a Rootstrap idea. It's being pulled by macro forces already in motion.</p>
+    <div class="cards">
+      <div class="mini"><div class="h">Token costs keep collapsing</div><p>The cost of intelligence is falling fast. Work that was too expensive to run in loops is becoming cheap enough to run continuously.</p></div>
+      <div class="mini"><div class="h">Model optionality is increasing</div><p>Claude, OpenAI, Gemini, and open-weight or self-hosted models (e.g. GLM) are all part of the stack. We're not structurally tied to one provider.</p></div>
+      <div class="mini"><div class="h">Agentic development is a real pattern</div><p>This era's important tools are being built around loops, tool use, evals, permissions, and human review — a new delivery architecture, not just "AI writes code".</p></div>
+    </div>
+    <p class="line">When intelligence gets cheaper, <span class="live">loops become viable</span>. When models become interchangeable, <span class="live">Ground Truth becomes more valuable</span>.</p>
+  </div>
+</section>
+
+<section class="slide" id="spattern">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>05 · Emerging pattern</div>
+    <h2>Companies already build this way.</h2>
+    <p class="sub sm">With today's technology, the most advanced engineering orgs already run delivery on this architecture: context, agents, loops, verification, and human gates. The architecture is converging; no one is copying our model.</p>
+        <div class="cards">
+      <div class="mini"><div class="h">Uber</div><p>Rideshare at global scale. Engineers act as tech leads directing background agents that open pull requests; humans review. Agentic development is now part of company strategy.</p></div>
+      <div class="mini"><div class="h">Amazon</div><p>Used AI agents to migrate ~30,000 production applications to a new Java version — work its CEO put at over 4,500 developer-years saved.</p></div>
+      <div class="mini"><div class="h">Coinbase</div><p>AI-native engineering is mandated across the company, with code review and human oversight retained.</p></div>
+      <div class="mini"><div class="h">Shopify</div><p>"Reflexive AI usage" is a baseline expectation for every team; teams justify why a task can't be done with AI before asking for more headcount.</p></div>
+    </div>
+    <p class="line">The most advanced teams are rebuilding delivery around context, agents, loops, verification, and <span class="live">human gates</span>.</p>
+    <div class="def amber">
+      <div class="t">Rootstrap's move</div>
+      <p>These companies built this for their own engineers. Rootstrap's opportunity is to turn the same pattern into a delivery model for clients.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="scommod">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>06 · Where value accrues</div>
+    <h2>As models commoditize, Ground Truth appreciates.</h2>
+    <p class="sub sm">If model performance keeps improving and token prices keep falling, the model itself becomes less defensible. The durable asset moves upstream.</p>
+    <div class="vs">
+      <div class="col was"><span class="tag">— Model layer</span><ul><li>Getting cheaper</li><li>Getting faster</li><li>Becoming interchangeable</li></ul></div>
+      <div class="col now"><span class="tag">Ground Truth layer</span><ul><li>Company-specific</li><li>Hard to reconstruct</li><li>Validated by humans</li><li>Reusable across capabilities</li><li>Compounds over time</li></ul></div>
+    </div>
+    <p class="line">The cheaper the model, the more valuable the <span class="live">context</span>.</p>
+    <p class="sub sm">Model cost trends push value upstream: from execution to context, validation, and orchestration.</p>
+  </div>
+</section>
+
+<section class="slide" id="s5">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>07 · The core idea</div>
+    <p class="stmt"><span class="gt">Ground Truth</span> <span class="is">IS</span> the product.</p>
+    <div class="def">
+      <div class="t">Ground Truth — definition</div>
+      <p>A precise, living model of how the business actually works: its processes, rules, data, integrations and decisions. It is accurate enough that both people and AI agents can build on it. The software is increasingly derived from it.</p>
+    </div>
+    <ul class="points">
+      <li>The client still receives working software.</li>
+      <li>But the durable asset we create is the <b>Ground Truth</b>.</li>
+      <li>Software becomes easier to generate, modify, and regenerate from that model.</li>
+    </ul>
+    <p class="line">The software is a <span class="live">by-product</span> of the Ground Truth.</p>
+  </div>
+</section>
+
+<section class="slide" id="sval">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>08 · Validation</div>
+    <h2>How Ground Truth gets validated.</h2>
+    <div class="vflow">
+      <span class="vstep">Interviews</span><span class="vdown">↓</span>
+      <span class="vstep">Knowledge extraction</span><span class="vdown">↓</span>
+      <span class="vstep">Ground Truth draft</span><span class="vdown">↓</span>
+      <span class="vstep">Stakeholder review</span><span class="vdown">↓</span>
+      <span class="vstep">Interactive validation</span><span class="vdown">↓</span>
+      <span class="vstep end">Capability delivery</span>
+    </div>
+    <div class="vs" style="margin-top:26px">
+      <div class="col was"><span class="tag">— Not the deliverable</span><ul><li><s>15 markdown files</s></li><li><s>PDFs &amp; static docs</s></li></ul></div>
+      <div class="col now"><span class="tag">The deliverable</span><ul><li>A conversational interface</li><li>A navigable business model</li><li>A Business Twin</li><li>A system they can <b>query, challenge, and correct</b></li></ul></div>
+    </div>
+    <p class="line">If stakeholders cannot interrogate the model, they cannot <span class="live">validate</span> it.</p>
+  </div>
+</section>
+
+<section class="slide" id="scap">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>09 · What a capability is</div>
+    <h2>What a capability is.</h2>
+    <p class="sub sm">A capability is a larger business function made of many specs, flows, acceptance criteria, evals, and agent loops.</p>
+    <div class="flowlab now" style="margin-top:22px">Hierarchy</div>
+    <div class="flow">
+      <span class="chip now">Platform</span><span class="sep">→</span>
+      <span class="chip now">Capabilities</span><span class="sep">→</span>
+      <span class="chip now">Specs</span><span class="sep">→</span>
+      <span class="chip now">Acceptance criteria</span><span class="sep">→</span>
+      <span class="chip now">Evals / agent loops</span><span class="sep">→</span>
+      <span class="chip now">Implementation</span>
+    </div>
+    <div class="def" style="margin-top:22px">
+      <div class="t">Example — capability: User Management</div>
+      <p>Sign up · Login · Logout · Forgot &amp; reset password · Invite user · Edit user role · Disable user · Permission checks · Audit trail — each its own spec, with acceptance criteria and evals.</p>
+    </div>
+    <p class="line">A story is a unit of work. A capability is a <span class="live">unit of value</span>.</p>
+    <p class="sub sm">Capabilities are a better commercial unit than hours or story points — but not a fake velocity metric. The point isn't to count them; it's to package, price, and deliver validated units of business value.</p>
+  </div>
+</section>
+
+<!-- ux/ui -->
+<section class="slide" id="sux">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>10 · UX/UI remains part of the delivery system</div>
+    <h2>AI accelerates design. It doesn't replace product design.</h2>
+    <p class="sub sm">AI-native delivery doesn't remove UX/UI from the process. It makes design exploration faster — and makes strong product design more valuable, not less.</p>
+    <div class="vs">
+      <div class="col was"><span class="tag">AI accelerates</span><ul><li>Wireframes &amp; prototypes</li><li>UX variations</li><li>UI generation &amp; component mapping</li><li>Research synthesis &amp; usability review</li><li>Design-system documentation</li></ul></div>
+      <div class="col now"><span class="tag">UX/UI still defines</span><ul><li>User flows &amp; interaction design</li><li>Usability &amp; accessibility</li><li>Visual quality &amp; design systems</li><li>Client-facing product judgment</li><li>Making capabilities coherent as experiences</li></ul></div>
+    </div>
+    <p class="line">Agents can generate interfaces faster, but UX/UI defines what <span class="live">"good"</span> means.</p>
+    <div class="def">
+      <div class="t">The same capability — as a product experience</div>
+      <p>User Management isn't only backend logic: sign-up, login &amp; reset flows · invite-user flow · role &amp; permission UX · admin experience · empty &amp; error states · accessibility · design-system components — each with its own specs, acceptance criteria, and evals.</p>
+    </div>
+    <p class="line" style="margin-top:18px">Capabilities need <span class="live">product experience</span>, not just implementation.</p>
+  </div>
+</section>
+
+<section class="slide" id="s6">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>11 · Process vs process</div>
+    <h2>The flow inverts.</h2>
+    <div class="flowwrap">
+      <div>
+        <div class="flowlab was">— Old flow</div>
+        <div class="flow">
+          <span class="chip was">Requirements</span><span class="sep was">→</span>
+          <span class="chip was">Stories</span><span class="sep was">→</span>
+          <span class="chip was">Sprint</span><span class="sep was">→</span>
+          <span class="chip was">Code</span><span class="sep was">→</span>
+          <span class="chip was">Software</span>
+        </div>
+      </div>
+      <div>
+        <div class="flowlab now">New flow</div>
+        <div class="flow">
+          <span class="chip now">Knowledge</span><span class="sep">→</span>
+          <span class="chip now">Ground Truth</span><span class="sep">→</span>
+          <span class="chip now">Specs</span><span class="sep">→</span>
+          <span class="chip now">Agents</span><span class="sep">→</span>
+          <span class="chip now">Software</span>
+        </div>
+      </div>
+    </div>
+    <div class="vs" style="margin-top:24px">
+      <div class="col was"><span class="tag">— Old cycle</span><ul><li><s>Sprint 1</s></li><li><s>Sprint 2</s></li><li><s>Sprint 3</s></li></ul></div>
+      <div class="col now"><span class="tag">New cycle · phases</span><ul><li><b>1.</b> Ground Truth</li><li><b>2.</b> Architecture</li><li><b>3.</b> Capability delivery</li><li><b>4.</b> Continuous evolution</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="said">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>12 · The AI Delivery System</div>
+    <h2>The AI Delivery System.</h2>
+    <p class="sub sm">The machinery that turns Ground Truth and specs into working software — reliably enough to put a price on. Not one-off prompting.</p>
+    <div class="grid2">
+      <div class="mini"><div class="h">Agents</div><p>Execute scoped tasks against specs and Ground Truth.</p></div>
+      <div class="mini"><div class="h">Evals</div><p>Check behavior against expected outcomes, not just that code runs.</p></div>
+      <div class="mini"><div class="h">Orchestration</div><p>Coordinate multi-step, multi-agent work toward a defined end state.</p></div>
+      <div class="mini"><div class="h">Guardrails</div><p>Keep agents inside safe, allowed, reversible actions.</p></div>
+      <div class="mini"><div class="h">Memory</div><p>Carry context across steps, runs, and sessions.</p></div>
+      <div class="mini"><div class="h">Tool contracts</div><p>Typed, reliable access to systems and data.</p></div>
+      <div class="mini"><div class="h">Observability</div><p>Logs, traces, and metrics for every run.</p></div>
+      <div class="mini"><div class="h">Design standards</div><p>Design principles, component standards, interaction patterns, and accessibility rules — the quality bar agents generate against.</p></div>
+      <div class="mini meta-card"><div class="h">A real engineering discipline</div><div class="ex">This is the system the reusable loops run on — owned end to end, not a prompt box.</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="sloop">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>13 · Reusable loops</div>
+    <h2>The new unit of delivery is the loop.</h2>
+    <p class="sub sm">AI-native delivery isn't asking an agent to write code. It's designing closed loops that execute, verify, create follow-up work, and repeat until a defined condition is met.</p>
+    <div class="flowwrap">
+      <div>
+        <div class="flowlab was">— Traditional loop</div>
+        <div class="flow">
+          <span class="chip was">Human notices</span><span class="sep was">→</span>
+          <span class="chip was">Creates ticket</span><span class="sep was">→</span>
+          <span class="chip was">Assigns work</span><span class="sep was">→</span>
+          <span class="chip was">Verifies</span><span class="sep was">→</span>
+          <span class="chip was">↻ repeats</span>
+        </div>
+      </div>
+      <div>
+        <div class="flowlab now">AI-native loop</div>
+        <div class="flow">
+          <span class="chip now">Spec defines behavior</span><span class="sep">→</span>
+          <span class="chip now">QA agent tests</span><span class="sep">→</span>
+          <span class="chip now">Bug / gap created</span><span class="sep">→</span>
+          <span class="chip now">Fix agent implements</span><span class="sep">→</span>
+          <span class="chip now">Independent review</span><span class="sep">→</span>
+          <span class="chip now">QA retests</span><span class="sep">→</span>
+          <span class="chip loop">↻ until done</span>
+        </div>
+      </div>
+    </div>
+    <p class="line">Ground Truth makes loops <span class="live">safe</span>. Loops make delivery <span class="live">scalable</span>.</p>
+    <div style="margin-top:6px">
+      <div class="flowlab now">Reusable loop types</div>
+      <div class="flow">
+        <span class="chip now">QA / Playwright</span>
+        <span class="chip now">Bug triage</span>
+        <span class="chip now">Spec consistency</span>
+        <span class="chip now">Ground Truth consistency</span>
+        <span class="chip now">Product decision</span>
+        <span class="chip now">Regression</span>
+        <span class="chip now">Integration contract</span>
+        <span class="chip now">Security review</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="sgate">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>14 · Human gates</div>
+    <h2>Loops surface decisions. They don't invent them.</h2>
+    <p class="sub sm">Agents should not silently resolve business ambiguity — they surface it and route the decision to a human. Specifications stay central; agents amplify them.</p>
+    <div class="vs">
+      <div class="col was"><span class="tag">— What the agent found</span><ul><li>SOP: failed payments suspend accounts immediately.</li><li>Sales notes: customers get a 7-day grace period.</li></ul></div>
+      <div class="col now"><span class="tag">What it does — instead of guessing</span>
+        <div class="mono" style="border:none;background:transparent;padding:0;margin-top:2px">
+          <span class="hl">Decision needed</span><br>"When payment fails — suspend now, or after a grace period?"<br><br><span class="c">Affected:</span> Billing · Account access · Notifications<br><span class="c">Confidence:</span> <span class="dn">Low</span> → routed to client / Product Architect
+        </div>
+      </div>
+    </div>
+    <div class="def amber">
+      <div class="t">Human gates, not full autonomy</div>
+      <p>Human-in-the-loop remains essential — <b>for now</b> — especially where business judgment, risk, compliance, or product ambiguity are involved.</p>
+    </div>
+    <ul class="points">
+      <li>The fix agent never verifies its own work — an <b>independent</b> agent or eval does.</li>
+      <li>Every loop has stop conditions, logs, an owner, and an escalation path.</li>
+      <li>Jira can be the work queue, but <b>Ground Truth stays the source of truth</b>.</li>
+    </ul>
+    <p class="line">Today, humans approve the business reality agents build from. Tomorrow, that <span class="live">boundary may move</span>.</p>
+  </div>
+</section>
+
+<section class="slide" id="s4">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>15 · What we offer</div>
+    <h2>What we offer.</h2>
+    <div class="grid2">
+      <div class="mini"><div class="h">Ground Truth expertise</div><p>We model how the business actually works — its processes, rules, data and decisions — precisely enough to build on.</p></div>
+      <div class="mini"><div class="h">A delivery process</div><p>A repeatable way of working: from modeling the business to delivering and evolving capabilities, instead of ad-hoc ticket-by-ticket projects.</p></div>
+      <div class="mini"><div class="h">Tokens + human judgment</div><p>We combine AI agents with senior engineering to turn that model into working software and real business outcomes.</p></div>
+      <div class="mini"><div class="h">Engineering ownership</div><p>Production-grade delivery: we own the quality and reliability of agent-built systems, not just a working prototype.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="ssell">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>16 · What we sell</div>
+    <h2>What we sell.</h2>
+    <div class="flow" style="margin-top:26px">
+      <span class="chip now">1 · Ground Truth Modeling</span><span class="sep">→</span>
+      <span class="chip now">2 · Architecture</span><span class="sep">→</span>
+      <span class="chip now">3 · Capability Delivery</span><span class="sep">→</span>
+      <span class="chip now" style="border-color:var(--flag);color:var(--flag)">4 · Continuous Evolution</span>
+    </div>
+    <p class="line">The customer buys the capability. <span class="live">Ground Truth</span> is the asset that makes it repeatable.</p>
+    <p class="sub sm">We sell business capabilities, delivered through software and powered by Ground Truth.</p>
+  </div>
+</section>
+
+<section class="slide" id="sfix">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>17 · Fixed-bid</div>
+    <h2>Fixed-bid becomes possible again.</h2>
+    <div class="vs">
+      <div class="col was"><span class="tag">— Old fixed-bid risk</span><ul><li>Ambiguous requirements</li><li>Unknown effort</li><li>Expensive rework</li><li>Scope fights</li><li>Margin collapse</li></ul></div>
+      <div class="col now"><span class="tag">AI-native fixed-bid</span><ul><li>Approved Ground Truth</li><li>Capability specs &amp; acceptance criteria</li><li>Evals</li><li>Reusable delivery loops</li><li>Clear change triggers</li></ul></div>
+    </div>
+    <p class="line">We do not fixed-price effort. We fixed-price <span class="live">validated capabilities</span>.</p>
+    <p class="sub sm">A platform may hold 15–20 capabilities. Once the model is clear and the loops are running, capability throughput can increase dramatically — without turning "capabilities per week" into the new story points.</p>
+  </div>
+</section>
+
+<section class="slide" id="sknow">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>18 · Knowledge compounds</div>
+    <h2>Knowledge compounds.</h2>
+    <div class="flowwrap">
+      <div>
+        <div class="flowlab was">— Traditional services</div>
+        <div class="flow">
+          <span class="chip was">Project 1 · learn</span><span class="sep was">→</span>
+          <span class="chip was">Project 2 · relearn</span><span class="sep was">→</span>
+          <span class="chip was">Project 3 · relearn</span>
+        </div>
+      </div>
+      <div>
+        <div class="flowlab now">AI-native services</div>
+        <div class="flow">
+          <span class="chip now">Project 1 · learn</span><span class="sep">→</span>
+          <span class="chip now">Project 2 · reuse</span><span class="sep">→</span>
+          <span class="chip now" style="border-color:var(--flag);color:var(--flag)">Project 3 · compound</span>
+        </div>
+      </div>
+    </div>
+    <p class="line">The margin opportunity is that <span class="live">knowledge becomes reusable</span>.</p>
+    <ul class="points">
+      <li>Revenue stops depending only on headcount.</li>
+      <li>Reusable Ground Truth lowers the cost of future delivery.</li>
+      <li>The second project in a domain should be cheaper than the first.</li>
+      <li>The third should be cheaper than the second.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" id="s11">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>19 · Margins</div>
+    <h2>Margin comes from reuse and reduced risk.</h2>
+    <p class="sub sm">Not from having fewer people. From reusable knowledge, reusable loops, and lower delivery risk.</p>
+    <div class="vs">
+      <div class="col was"><span class="tag">— Old services model</span>
+        <div class="mono" style="margin-top:4px;border:none;background:transparent;padding:0">Revenue = <span class="dn">people × rate × utilization</span></div>
+      </div>
+      <div class="col now"><span class="tag">AI-native model</span>
+        <div class="mono" style="margin-top:4px;border:none;background:transparent;padding:0">Revenue = <span class="up">validated capabilities delivered</span><br>Cost = senior oversight + reusable loops + agent execution</div>
+      </div>
+    </div>
+    <ul class="points">
+      <li>Falling model costs → lower <b>execution</b> cost.</li>
+      <li>Reusable loops → lower <b>delivery</b> cost.</li>
+      <li>Reusable Ground Truth → lower <b>understanding</b> cost.</li>
+      <li>Fixed-price capability pricing gets safer as the <b>risk surface</b> is reduced before pricing.</li>
+    </ul>
+    <p class="line">The better the Ground Truth, the safer the fixed bid. The more reusable the loops, the higher the <span class="live">margin</span>.</p>
+  </div>
+</section>
+
+<section class="slide" id="s12">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>20 · The durable advantage</div>
+    <h2>Speed is an advantage. Reuse is the durable one.</h2>
+    <p class="sub sm">AI makes delivery faster and better — and that's real. But speed alone is easy to copy. What compounds is reuse: our method, tooling, and patterns, plus the non-confidential domain scaffolding around them.</p>
+    <div class="vs">
+      <div class="col was"><span class="tag">— Today</span><ul><li>Every project relearns from zero</li><li>Nothing reusable survives the engagement</li></ul></div>
+      <div class="col now"><span class="tag">What compounds — our IP</span><ul><li>Method, loops, eval &amp; spec patterns, integration contracts</li><li>Domain &amp; regulatory scaffolding — Healthcare, Fintech, Real Estate</li><li><b>Each new build starts ahead, not from zero</b></li></ul></div>
+    </div>
+    <p class="sub sm">This is the first time a services business can compound the way a product business does — and because it's our method, not the client's data, it travels across engagements without crossing confidentiality walls.</p>
+  </div>
+</section>
+
+<section class="slide" id="sadv">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>21 · Rootstrap's unfair advantage</div>
+    <h2>Why us.</h2>
+    <p class="sub sm">This isn't an abstract AI delivery model. Rootstrap already has the ingredients to make it real.</p>
+    <div class="grid2">
+      <div class="mini"><div class="h">Delivery muscle</div><p>Product design + engineering delivery at scale, with senior technical ownership of production systems.</p></div>
+      <div class="mini"><div class="h">Client trust</div><p>Existing relationships and the standing to get a client to authorize one business truth.</p></div>
+      <div class="mini"><div class="h">Many domains</div><p>Experience across industries — the raw material for reusable, non-confidential scaffolding.</p></div>
+      <div class="mini"><div class="h">Nearshore capacity</div><p>Execution capacity to actually run the loops and ship, not just advise.</p></div>
+      <div class="mini"><div class="h">Project volume</div><p>Enough volume to compound patterns, specs, and evals across engagements.</p></div>
+      <div class="mini"><div class="h">Real environments</div><p>Live client systems where loops, specs, evals, and Ground Truth get tested for real.</p></div>
+    </div>
+    <p class="line">The opportunity is to convert services experience into <span class="live">reusable delivery infrastructure</span>.</p>
+    <div class="def">
+      <div class="t">The future pod</div>
+      <p>The future pod combines <b>product design + engineering ownership + AI-native delivery loops</b>. Rootstrap already has all three, and AI makes the combination stronger.</p>
+    </div>
+    <p class="sub sm">Most companies will use AI to deliver faster. Rootstrap can use AI to make delivery <b>compound</b>.</p>
+  </div>
+</section>
+
+<section class="slide" id="s14">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>22 · The transition</div>
+    <h2>This is a transition — but we should lead it.</h2>
+    <p class="sub sm">Gradual for the existing portfolio. Bold for new opportunities.</p>
+    <div class="vs">
+      <div class="col"><span class="tag" style="color:var(--dim)">Existing T&amp;M engagements</span><ul><li>Keep working the way they work — their Jira, backlog, sprints, planning.</li><li>We don't force the full model into a live engagement.</li><li>Internally we still get better: specs, reusable agents, evals, loops.</li></ul></div>
+      <div class="col now"><span class="tag">New projects</span><ul><li><b>Lead with the AI-native model</b>: Ground Truth first, capabilities second, reusable loops underneath.</li><li>Validated specs, evals, continuous evolution after launch.</li><li>Fixed-bid or price-per-capability where the capability is clear.</li></ul></div>
+    </div>
+    <div class="def">
+      <div class="t">Where we start</div>
+      <p>First we change how Rootstrap operates: better specs, reusable agents, evals, loops, internal Ground Truth. Then, where the client and project are ready, we change how we sell — from hours and tickets to validated capabilities.</p>
+    </div>
+    <p class="line">From capacity provider to <span class="live">capability delivery partner</span>.</p>
+  </div>
+</section>
+
+<section class="slide" id="s15">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>23 · What we decide next</div>
+    <p class="close-stmt">Software delivery is becoming a <span class="live">knowledge management</span> problem. AI is the technology that made it visible.</p>
+    <p class="sub">It isn't the same work with fewer people — it's <b>more value, delivered faster and better</b>, because reusable knowledge and lower risk let revenue grow without headcount rising in step.</p>
+    <div style="margin-top:30px">
+      <div class="q"><span class="qn">Q1</span><p>How do we position and package this — the offer, the narrative, the ideal client?</p></div>
+      <div class="q"><span class="qn">Q2</span><p>What marketing and sales materials, and website, do we need to tell this story?</p></div>
+      <div class="q"><span class="qn">Q3</span><p>Which current and prospective projects do we offer this approach on first?</p></div>
+      <div class="q"><span class="qn">Q4</span><p>What proof points — pilots, case studies, demos — make it credible to clients?</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="sappx">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>Appendix</div>
+    <h2>Appendix.</h2>
+    <p class="sub">Operational detail behind the story — how we map, size, staff, model, and de-risk the work. Reference, not narrative.</p>
+  </div>
+</section>
+
+<section class="slide" id="s7">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>A1 · How the old becomes the new</div>
+    <h2>Every artifact has a successor.</h2>
+    <div class="map">
+      <div class="r"><div class="o"><s>Workshops</s></div><div class="a">→</div><div class="n">Interviews &amp; knowledge extraction</div></div>
+      <div class="r"><div class="o"><s>User stories</s></div><div class="a">→</div><div class="n">Capabilities</div></div>
+      <div class="r"><div class="o"><s>Story map</s></div><div class="a">→</div><div class="n">Business Twin</div></div>
+      <div class="r"><div class="o"><s>Diagrams</s></div><div class="a">→</div><div class="n">Graph</div></div>
+      <div class="r"><div class="o"><s>Documentation</s></div><div class="a">→</div><div class="n">Navigable system</div></div>
+      <div class="r"><div class="o"><s>Developers</s></div><div class="a">→</div><div class="n">Capability delivery system</div></div>
+      <div class="r"><div class="o"><s>Sprints</s></div><div class="a">→</div><div class="n">Model iterations</div></div>
+      <div class="r"><div class="o"><s>Backlog</s></div><div class="a">→</div><div class="n">Ground Truth</div></div>
+      <div class="r"><div class="o"><s>Tickets</s></div><div class="a">→</div><div class="n">Capabilities</div></div>
+      <div class="r"><div class="o"><s>Software</s></div><div class="a">→</div><div class="n">Business Capability</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="s8">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>A2 · Estimation</div>
+    <h2>From effort to complexity.</h2>
+    <div class="vs">
+      <div class="col was"><span class="tag">— We used to size</span><ul><li><s>Login</s></li><li><s>Dashboard</s></li><li><s>Payments</s></li><li><s>= 120 story points</s></li></ul></div>
+      <div class="col now"><span class="tag">We now size</span><ul><li>12 workflows</li><li>10 processes</li><li>4 systems</li><li>3 departments</li><li>5 stakeholders</li></ul></div>
+    </div>
+    <p class="sub sm">The real question becomes how much organizational complexity we can absorb: rules, stakeholders, exceptions, integrations, compliance, edge cases.</p>
+  </div>
+</section>
+
+<section class="slide" id="s9">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>A3 · Sizing capabilities</div>
+    <h2>Not all capabilities are equal.</h2>
+    <div class="tiers">
+      <div class="tier"><span class="code">C1</span><div><div class="d">Single workflow</div><div class="e">Password reset</div></div></div>
+      <div class="tier"><span class="code">C2</span><div><div class="d">Multiple workflows</div><div class="e">Customer onboarding · CRM + Email + Portal</div></div></div>
+      <div class="tier"><span class="code">C3</span><div><div class="d">Cross-functional</div><div class="e">Lead-to-cash · Sales + Finance + Operations</div></div></div>
+      <div class="tier"><span class="code">C4</span><div><div class="d">Core platform</div><div class="e">Multi-tenancy</div></div></div>
+      <div class="tier"><span class="code">C5</span><div><div class="d">Strategic transformation</div><div class="e">AI customer-support platform</div></div></div>
+    </div>
+    <div class="def amber">
+      <div class="t">A caution</div>
+      <p>"Capabilities per week" can quietly become the new story points. Track lead time (requested → operational) and complexity absorbed, not a single velocity number.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="s10">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>A4 · The delivery team</div>
+    <h2>A smaller, more senior core.</h2>
+    <div class="vs">
+      <div class="col was"><span class="tag">— Today · high cost</span><ul><li><s>2 Backend</s></li><li><s>2 Frontend</s></li><li><s>1 QA</s></li><li><s>1 PM</s></li></ul></div>
+      <div class="col now"><span class="tag">Next</span><ul><li>1 Product Architect</li><li>1 Platform Architect</li><li>1 Full-stack Senior</li><li><b>+ agents · evals · specs · automation</b></li></ul></div>
+    </div>
+    <div class="def">
+      <div class="t">Eval — definition</div>
+      <p>An automated check of behavior. Where QA asked "does the code run?", an eval asks "does the system do the right thing?" across real cases — and keeps checking as agents change the code.</p>
+    </div>
+    <p class="sub sm">Ground Truth is the starting point, not the whole system. Reliable AI-native delivery still requires orchestration, evals, guardrails, observability, and <span class="live">strong engineering ownership</span>.</p>
+  </div>
+</section>
+
+<section class="slide" id="sbp">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>A5 · Ground Truth blueprint</div>
+    <h2>Ground Truth has a standard shape.</h2>
+    <p class="sub sm">Not random documentation. A structured, validated, versioned package that business validates, product reasons from, engineers build from, and agents safely use.</p>
+    <div class="grid2">
+      <div class="mini"><div class="h"><span class="num">01</span>Project Context</div><p>Business &amp; product goals, users, stakeholders, constraints, success metrics, non-goals, open questions.</p></div>
+      <div class="mini"><div class="h"><span class="num">02</span>Domain Model</div><p>Entities, relationships, vocabulary, states &amp; lifecycles, business rules, exceptions, edge cases.</p></div>
+      <div class="mini"><div class="h"><span class="num">03</span>Capability Specs</div><p>Purpose, actors, triggers, happy &amp; alternate paths, acceptance criteria, permissions, error cases, evals.</p></div>
+      <div class="mini"><div class="h"><span class="num">04</span>Engineering Context</div><p>Architecture, repo structure, stack, existing patterns, API &amp; testing conventions, security, deployment.</p></div>
+      <div class="mini"><div class="h"><span class="num">05</span>Integration Contracts</div><p>External systems, APIs, auth, webhooks, source of truth per field, sync direction, failure &amp; retry.</p></div>
+      <div class="mini"><div class="h"><span class="num">06</span>Eval Suite</div><p>Functional, business-rule &amp; regression evals, golden examples, agent-behavior &amp; data-integrity checks.</p></div>
+      <div class="mini"><div class="h"><span class="num">07</span>Decision Log</div><p>Decisions, owner, date, rationale, alternatives considered, tradeoffs, impact.</p></div>
+      <div class="mini meta-card"><div class="h">Every part carries metadata</div><div class="fields">Owner · Status · Source · Confidence · Last validated · Applies to</div><div class="ex">Owner: Head of Operations · Status: Approved · Source: COO interview + SOP · Confidence: High · Last validated: June 2026</div></div>
+    </div>
+    <p class="line">If it is not structured, owned, versioned, and validated, it is <span class="live">not Ground Truth</span>.</p>
+  </div>
+</section>
+
+<section class="slide" id="sexp">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>A6 · Ground Truth explorer</div>
+    <h2>Ground Truth must be navigable.</h2>
+    <p class="sub sm">The client should not receive 15 markdown files. It is explorable, searchable, conversational, and correctable — a product surface, not a folder.</p>
+    <div class="ask">
+      <span class="lab">Ask</span>
+      <div class="qq">How does patient onboarding work?</div>
+      <div class="qq">What happens if a payment fails?</div>
+      <div class="qq">Who owns this decision?</div>
+      <div class="qq">Which system is the source of truth for this field?</div>
+    </div>
+    <div class="grid2">
+      <div class="mini"><div class="h">Browse</div><p>Processes, capabilities, entities, business rules, integrations, decisions, open questions.</p></div>
+      <div class="mini"><div class="h">Trace</div><p>Every claim links back to its source — interview, SOP, ticket, call — with confidence level and last validation date.</p></div>
+      <div class="mini"><div class="h">Validate</div><p>Stakeholders approve, correct, or flag outdated information. Changes go into a review queue.</p></div>
+      <div class="mini"><div class="h">Generate</div><p>Capability specs, acceptance criteria, evals, implementation plans, and agent tasks — straight from the model.</p></div>
+    </div>
+    <p class="line">The interface to Ground Truth is a <span class="live">conversation with the business</span>.</p>
+  </div>
+</section>
+
+<section class="slide" id="s13">
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>A7 · What makes this hard</div>
+    <h2>Where the model lives or dies.</h2>
+    <div class="cards">
+      <div class="mini"><div class="h">Pricing &amp; trust</div><p>Will clients buy a fixed-price capability instead of hours, with no timesheet to point at?</p></div>
+      <div class="mini"><div class="h">Reuse has limits</div><p>A client's Ground Truth can't cross confidentiality walls. What compounds is our method, tooling, and patterns — not their business model — which needs strict versioning and access control.</p></div>
+      <div class="mini"><div class="h">Creating Ground Truth</div><p>Detecting conflicting truths is easy; resolving them is political. It works where a client can authorize one business truth — so client selection matters.</p></div>
+      <div class="mini"><div class="h">Talent &amp; org</div><p>Fewer, more senior people. Developers become architects. Eval work becomes a discipline.</p></div>
+      <div class="mini"><div class="h">Quality &amp; accountability</div><p>When agents generate, who owns the defect? Evals have to be real, not theater.</p></div>
+      <div class="mini"><div class="h">Commercial transition</div><p>Existing contracts, a new sales motion, and real internal attachment to the old rituals.</p></div>
+      <div class="mini" style="grid-column:1/-1;border-top:2px solid var(--live)"><div class="h">AI delivery infrastructure</div><p>Agents need orchestration, evals, guardrails, memory, tool contracts, and observability. We build this inside real projects with the seniors we already have, then reuse it — the discipline is making it reusable from day one, not throwaway.</p></div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  var slides=Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var dots=document.getElementById('dots');
+  var pbar=document.getElementById('pbar');
+
+  slides.forEach(function(s,i){
+    var a=document.createElement('a');
+    a.href='#'+s.id;a.setAttribute('aria-label','Go to slide '+(i+1));
+    dots.appendChild(a);
+  });
+  var dotEls=Array.prototype.slice.call(dots.children);
+
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      var i=slides.indexOf(e.target);
+      if(e.isIntersecting && e.intersectionRatio>0.55){
+        e.target.classList.add('is-on');
+        dotEls.forEach(function(d,di){d.classList.toggle('on',di===i)});
+      }
+    });
+  },{threshold:[0,.55,1]});
+  slides.forEach(function(s){io.observe(s)});
+
+  function onScroll(){
+    var h=document.documentElement;
+    var max=h.scrollHeight-h.clientHeight;
+    pbar.style.width=(max>0?(h.scrollTop/max*100):0)+'%';
+  }
+  document.addEventListener('scroll',onScroll,{passive:true});
+  onScroll();
+})();
+</script>
+</body>
+</html>

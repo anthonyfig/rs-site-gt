@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 392 266" fill="none" aria-label="Capability shape - waves">
+  <defs>
+    <linearGradient id="wg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#FFC83F"></stop>
+      <stop offset="1" stop-color="#FF99CA"></stop>
+    </linearGradient>
+  </defs>
+  <rect width="392" height="266" fill="#242425"></rect>
+  <path d="M0 200 Q98 120 196 200 T392 200" stroke="url(#wg)" stroke-width="2" fill="none" opacity="0.9"></path>
+  <path d="M0 170 Q98 90 196 170 T392 170" stroke="url(#wg)" stroke-width="2" fill="none" opacity="0.7"></path>
+  <path d="M0 140 Q98 60 196 140 T392 140" stroke="url(#wg)" stroke-width="2" fill="none" opacity="0.5"></path>
+  <path d="M0 110 Q98 30 196 110 T392 110" stroke="url(#wg)" stroke-width="2" fill="none" opacity="0.3"></path>
+</svg>

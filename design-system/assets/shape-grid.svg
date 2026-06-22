@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 392 266" fill="none" aria-label="Capability shape - grid">
+  <rect width="392" height="266" fill="#242425"></rect>
+  <g stroke="#FFC83F" stroke-width="1.5" fill="none" opacity="0.85">
+    
+    <g transform="translate(196,133)">
+      <path d="M-160 0 L160 0"></path>
+      <path d="M-160 -40 L160 -40"></path>
+      <path d="M-160 40 L160 40"></path>
+      <path d="M-160 -80 L160 -80"></path>
+      <path d="M-160 80 L160 80"></path>
+      
+      <path d="M-160 -90 L-160 90"></path>
+      <path d="M-80  -90 L-80  90"></path>
+      <path d="M0    -90 L0    90"></path>
+      <path d="M80   -90 L80   90"></path>
+      <path d="M160  -90 L160  90"></path>
+    </g>
+  </g>
+  
+  <g transform="translate(196,133)">
+    <circle r="6" fill="#FFC83F"></circle>
+    <circle cx="-80" r="3" fill="#BAFF99"></circle>
+    <circle cx="80" r="3" fill="#FF99CA"></circle>
+    <circle cy="-40" r="3" fill="#99E0FF"></circle>
+    <circle cy="40" r="3" fill="#BA99FF"></circle>
+  </g>
+</svg>
