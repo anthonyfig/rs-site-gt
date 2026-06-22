@@ -25,7 +25,9 @@ export function walk(dir, acc = []) {
 // ---------- frontmatter (YAML-lite, tailored to our schema) ----------
 function stripQuotes(s) {
   s = s.trim();
-  if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) return s.slice(1, -1);
+  if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+    return s.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+  }
   return s;
 }
 function parseInlineArray(s) {
@@ -103,6 +105,7 @@ function inline(s) {
   s = s.replace(/~~([^~]+)~~/g, '<del>$1</del>');
   s = s.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img alt="$1" src="$2" loading="lazy">');
   s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+  s = s.replace(/(^|[^&\w])(#[0-9a-fA-F]{6})\b/g, '$1<span class="sw" style="background:$2"></span>$2');
   return s;
 }
 export function mdToHtml(md) {

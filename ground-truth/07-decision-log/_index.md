@@ -34,3 +34,4 @@ the next number and never get rewritten — they get superseded.
 | [0009](0009-format-files-canonical-db-engine.md) | Format: agent-friendly files are canonical _(sharpened by 0010)_ | Accepted | 2026-06-22 |
 | [0010](0010-git-system-of-record-db-engine.md) | **Git is the system of record; the DB is the engine; the Explorer is a Git-backed UI** | Accepted | 2026-06-22 |
 | [0011](0011-separate-repos-ground-truth-vs-website.md) | Separate repos (not submodules): **rs-site-gt** (content) · **rs-ip** (method) · **rs-site** (code) | Accepted | 2026-06-22 |
+| [0012](0012-capability-vs-content-definition.md) | **A capability is a function, not a page; add the Content layer** | Accepted | 2026-06-22 |

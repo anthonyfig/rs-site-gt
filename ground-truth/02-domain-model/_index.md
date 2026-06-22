@@ -29,6 +29,7 @@ and *Graph* views render.
 | [Vocabulary](vocabulary.md) | The new terms (Ground Truth, Capability, Eval, Loop…) + the **old→new mapping** + dead terms |
 | [Entities](entities.md) | The nouns: Service/Offering, Capability, Case Study, Client, Industry, Persona, Engagement Model, Lead, Insight, Proof Point |
 | [Business Rules](business-rules.md) | The rules and guardrails that constrain how the business (and the site) behaves |
+| [Content Types](content-types.md) | The **content** capabilities operate on — Page, Collection, Industry, Case Study, Insight/Post, Service/Offering (Decision 0012; not capabilities) |
 
 ## Modeling note
 We deliberately model **two layers** that the site must hold simultaneously:

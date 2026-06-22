@@ -1,0 +1,49 @@
+---
+id: gt-03-us-lead-scheduling
+title: "US-2 — Direct scheduling & Slack notification"
+part: "03-capability-specs"
+type: user-story
+owner: "Head of Sales (suggested) + Platform Architect"
+status: draft
+confidence: medium
+sources: ["Capability gt-03-capability-lead-capture", "gt-05-hubspot (Meetings + Slack)"]
+updated: 2026-06-22
+last_validated: "pending"
+validated_by: "pending"
+applies_to: ["marketing-site"]
+capability: gt-03-capability-lead-capture
+related: ["gt-03-capability-lead-capture", "gt-05-hubspot"]
+tags: ["scheduling", "slack", "hubspot"]
+---
+
+# User story: Direct scheduling & Slack notification
+
+**As a** prospect **I want** to book a call directly **so that** I don't wait — and the team is
+notified instantly.
+
+## Acceptance criteria — scenarios
+**Scenario (US-lead-scheduling-AC1): Book directly**
+- **Given** the HubSpot Meetings scheduler (`/contact-hubspot-scheduler`)
+- **When** I pick a slot
+- **Then** a meeting + calendar invite are created.
+
+**Scenario (US-lead-scheduling-AC2): Slack notification**
+- **Given** a new submission or booking
+- **Then** a Slack notification fires to the sales channel.
+
+**Scenario (US-lead-scheduling-AC3): Notification never blocks capture**
+- **Given** Slack is unavailable
+- **Then** the lead/booking still succeeds; the notification is retried/logged out of band.
+
+## Definition of done
+- [ ] All scenarios pass · scheduler is accessible · no placeholder.
+
+## Evals
+| AC | Eval | Pass condition |
+|----|------|----------------|
+| AC1 | `EV-LEAD-HAPPY` | meeting + invite created |
+| AC2 | `EV-LEAD-HAPPY` | Slack message on submit/booking |
+| AC3 | `EV-LEAD-RESILIENCE` | Slack down → lead still created |
+
+## Notes / human gates
+- Target Slack channel + HubSpot Meetings link → Sales (`05/hubspot` open questions).
