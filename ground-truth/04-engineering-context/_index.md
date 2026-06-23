@@ -13,7 +13,7 @@ updated: 2026-06-22
 last_validated: "pending"
 validated_by: "pending"
 applies_to: ["marketing-site", "explorer"]
-related: ["gt-04-stack-and-architecture", "gt-04-seo-and-llm-discovery", "gt-07-0002-stack"]
+related: ["gt-04-stack-and-architecture", "gt-04-seo-and-llm-discovery", "gt-04-data-model", "gt-04-security-compliance", "gt-07-0002-stack"]
 tags: ["index", "engineering"]
 ---
 
@@ -27,6 +27,8 @@ repo-root [`CLAUDE.md`](../../CLAUDE.md); this is the detail.
 | Artifact | Defines |
 |----------|---------|
 | [Stack & Architecture](stack-and-architecture.md) | The refined stack, two-surface architecture, monorepo, how Ground Truth becomes data |
+| [Data Model](data-model.md) | The Explorer's Supabase/Postgres schema — a read-model rebuilt from Git, with RLS for internal-only data |
+| [Security & Compliance](security-and-compliance.md) | SOC 2-aligned posture, Explorer auth, PII/secrets handling, and the trust layer for regulated buyers |
 | [SEO & LLM Discovery](seo-and-llm-discovery.md) | Search + generative-engine discoverability strategy and rules |
 | [Design System](design-system.md) | Brand tokens, type, components & assets — the quality bar generated UI must meet |
 
