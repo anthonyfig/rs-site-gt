@@ -10,9 +10,10 @@ sources:
   - "Notion: Rootstrap ICP & Buyer Persona Report (May 2026) — most recent ICP source"
   - "rootstrapedia: wiki/marketing/icp-buyer-personas.md (Apr 2026)"
   - "live: https://www.rootstrap.com/ai-landing (fetched 2026-06-22)"
-updated: 2026-06-22
+updated: 2026-06-23
 last_validated: "pending"
 validated_by: "pending"
+review_cadence: "quarterly"
 applies_to: ["marketing-site", "explorer"]
 related: ["gt-02-entities", "gt-01-goals-and-scope"]
 tags: ["icp", "personas", "audience"]
@@ -22,6 +23,18 @@ tags: ["icp", "personas", "audience"]
 
 > Confidence is **high**: the May-2026 ICP Report and the Apr-2026 wiki agree, and the live
 > `/ai-landing` page already speaks to the AI-buyer overlay below.
+
+## Keeping the ICP current (review cadence)
+The ICP is expected to evolve — this artifact is the **single source of truth** the site, the
+Explorer, and the `ask.mjs` agent all read from.
+
+- **Owner:** Head of Sales + Head of Marketing. **Cadence:** reviewed **quarterly**, or whenever the
+  Notion *ICP & Buyer Persona Report* changes (`review_cadence: quarterly` in the metadata).
+- **To update:** edit this file (personas, anti-ICP, verticals, narrative) → bump `updated` and set
+  `last_validated` + `validated_by` → commit. The change flows to the site on the next build and
+  **immediately** to the Explorer / `ask.mjs` (Git-backed).
+- **Staleness signal:** if the source report has changed but this file hasn't caught up, set
+  `status: needs-revalidation` — the checker surfaces it so the ICP never drifts silently.
 
 ## The core insight (ICP Report, May 2026)
 Rootstrap wins on **trajectory, not industry**: best engagements are *Scaling Tech Companies
