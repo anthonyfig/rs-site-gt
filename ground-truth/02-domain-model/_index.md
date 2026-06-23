@@ -32,6 +32,7 @@ and *Graph* views render.
 | [Content Types](content-types.md) | The **content** capabilities operate on — Page, Collection, Industry, Case Study, Insight/Post, Service/Offering (Decision 0012; not capabilities) |
 | [AI Delivery Method](delivery-method.md) | Rootstrap's agentic method — the Agency Ladder, Prompt-First, the CC/CD loop, evals & the AI Discovery Sprint (the differentiator) |
 | [Voice & Messaging](voice-and-messaging.md) | How the brand sounds + approved copy and claims — what page copy is derived from (verbal sibling of the design system) |
+| [Values & Culture](values-and-culture.md) | Who Rootstrap is — the five core values, operating principles, and culture that About + Careers render |
 
 ## Modeling note
 We deliberately model **two layers** that the site must hold simultaneously:
