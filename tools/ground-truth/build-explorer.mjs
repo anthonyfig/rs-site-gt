@@ -159,9 +159,14 @@ const healthView = '<section id="view-health" class="view"><div class="ey">Healt
   + '<p class="lead">The model is freshly authored, so most artifacts are <b>draft</b> and awaiting human validation — that’s expected. These panels surface what to act on first.</p>'
   + '<div id="healthBody"></div></section>';
 
+const mapOptions = PART_ORDER.map(p => {
+  const its = arts.filter(i => i.part === p);
+  if (!its.length) return '';
+  return '<optgroup label="' + esc((SECTIONS[p]||{}).label || p) + '">' + its.slice().sort((a,b)=>a.title.localeCompare(b.title)).map(i => '<option value="' + i.id + '">' + esc(i.title) + '</option>').join('') + '</optgroup>';
+}).join('');
 const mapView = '<section id="view-map" class="view"><div class="ey">Relationship map · one section, not the home</div><h1 class="t">Trace how one item connects</h1>'
   + '<p class="lead">Centered on a single item, showing <b>only its direct connections</b> with full-size labels — click any to recenter, ← back to retrace. No global tangle.</p>'
-  + '<div class="maptop"><button id="mapBack" class="btnlite">← back</button><span class="pill">Focused on</span> <b id="mapTitle"></b> <span id="mapMeta" class="pill"></span></div>'
+  + '<div class="maptop"><button id="mapBack" class="btnlite">← back</button><label class="pill" for="mapPick">Focus on any item</label><select id="mapPick" class="mapsel">' + mapOptions + '</select><span id="mapMeta" class="pill"></span></div>'
   + '<div id="mapStage"><svg id="mapEdges" viewBox="0 0 860 460" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg></div>'
   + '<p class="pill" style="margin-top:8px">Tip: click the centered item to open its full page.</p></section>';
 
@@ -179,6 +184,7 @@ var PARTS=${JSON.stringify(PART_ORDER)}, SECT=D.sections, NS="http://www.w3.org/
 var facet={status:null,surface:null,q:""}, sort={key:"title",dir:1};
 var defaultCenter="gt-03-index", best=-1;
 D.items.forEach(function(i){if(!i.isArtifact)return;var d=(i.related||[]).length+(i.backlinks||[]).length;if(d>best){best=d;defaultCenter=i.id;}});
+if(byId["gt-01-goals-and-scope"])defaultCenter="gt-01-goals-and-scope";
 var mapCenter=defaultCenter, mapHist=[];
 function $(s){return document.querySelector(s);}
 function ce(t,c){var e=document.createElement(t);if(c)e.className=c;return e;}
@@ -285,7 +291,7 @@ function buildMap(center){
   [].slice.call(stage.querySelectorAll(".mnode")).forEach(function(e){e.remove();});
   while(edges.firstChild)edges.removeChild(edges.firstChild);
   var it=byId[center];if(!it)return;
-  $("#mapTitle").textContent=it.title;$("#mapMeta").textContent="· "+areaLabel(it.part);
+  var psel=$("#mapPick");if(psel)psel.value=center;$("#mapMeta").textContent="· "+areaLabel(it.part);
   $("#mapBack").style.visibility=mapHist.length?"visible":"hidden";
   var nb=[];(it.related||[]).forEach(function(r){if(byId[r]&&nb.indexOf(r)<0)nb.push(r);});
   (it.backlinks||[]).forEach(function(b){if(byId[b]&&nb.indexOf(b)<0)nb.push(b);});
@@ -313,6 +319,7 @@ function route(){show(decodeURIComponent((location.hash||"").slice(1)));}
 document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest(".mapbtn");if(b){e.preventDefault();openMap(b.getAttribute("data-id"));}});
 [].forEach.call(document.querySelectorAll("#view-table th"),function(th){th.addEventListener("click",function(){var k=th.getAttribute("data-key");if(sort.key===k)sort.dir=-sort.dir;else{sort.key=k;sort.dir=1;}renderTable();});});
 $("#mapBack").addEventListener("click",function(){if(mapHist.length)buildMap(mapHist.pop());});
+var mapSel=$("#mapPick");if(mapSel)mapSel.addEventListener("change",function(){if(mapSel.value!==mapCenter){mapHist.push(mapCenter);buildMap(mapSel.value);}});
 var qel=$("#q");if(qel)qel.addEventListener("input",function(e){facet.q=e.target.value.toLowerCase();renderNav();renderTable();});
 window.addEventListener("resize",function(){if($("#view-map").classList.contains("active"))buildMap(mapCenter);});
 window.addEventListener("hashchange",route);
@@ -369,7 +376,7 @@ h1.t{font-size:27px;margin:.25em 0 .35em;letter-spacing:-.01em}.lead{color:var(-
 .trow{cursor:pointer}.trow:hover td{background:var(--ink3)}
 .hpanel{border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin:10px 0;background:var(--ink2)}
 .hpanel h3{font-size:14px;margin:0 0 8px;display:flex;justify-content:space-between;align-items:center;gap:10px}.hpanel .cnt{font-family:monospace;font-size:12px;color:var(--dim)}.hpanel .ok{color:var(--good);font-size:13px}.hchips{line-height:2}
-.maptop{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}.maptop b{font-family:'Poppins',sans-serif}
+.maptop{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}.mapsel{background:var(--ink3);border:1px solid var(--line);color:var(--paper);padding:6px 9px;border-radius:7px;font:inherit;font-size:12px;max-width:360px}
 #mapStage{position:relative;width:100%;height:460px;background:var(--ink2);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 #mapEdges{position:absolute;inset:0;width:100%;height:100%}
 .medge{stroke:#4c5573;stroke-width:1}
