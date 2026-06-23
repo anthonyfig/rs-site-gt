@@ -30,6 +30,8 @@ and *Graph* views render.
 | [Entities](entities.md) | The nouns: Service/Offering, Capability, Case Study, Client, Industry, Persona, Engagement Model, Lead, Insight, Proof Point |
 | [Business Rules](business-rules.md) | The rules and guardrails that constrain how the business (and the site) behaves |
 | [Content Types](content-types.md) | The **content** capabilities operate on — Page, Collection, Industry, Case Study, Insight/Post, Service/Offering (Decision 0012; not capabilities) |
+| [AI Delivery Method](delivery-method.md) | Rootstrap's agentic method — the Agency Ladder, Prompt-First, the CC/CD loop, evals & the AI Discovery Sprint (the differentiator) |
+| [Voice & Messaging](voice-and-messaging.md) | How the brand sounds + approved copy and claims — what page copy is derived from (verbal sibling of the design system) |
 
 ## Modeling note
 We deliberately model **two layers** that the site must hold simultaneously:
