@@ -4,14 +4,14 @@ title: "0002 — Stack: Astro (marketing) + React 19/Vite/Supabase (Explorer)"
 part: "07-decision-log"
 type: decision
 owner: "Platform Architect (suggested) + Anthony"
-status: in-review
+status: approved
 confidence: medium
 sources:
   - "User-confirmed direction (Jun 2026): 'refine it; think about SEO and LLM discovery'"
   - "Proposed stack: React 18, Vite, Tailwind, shadcn/Radix, TanStack Query, Supabase"
 updated: 2026-06-22
-last_validated: "pending"
-validated_by: "pending"
+last_validated: "2026-06-22"
+validated_by: "Anthony"
 applies_to: ["marketing-site", "explorer"]
 related: ["gt-04-stack-and-architecture", "gt-04-seo-and-llm-discovery"]
 tags: ["adr", "stack"]
@@ -19,7 +19,7 @@ tags: ["adr", "stack"]
 
 # 0002 — Stack decision
 
-**Status:** Accepted, pending Platform Architect validation · **Date:** 2026-06-22
+**Status:** Approved — confirmed by Anthony (two-framework) · **Date:** 2026-06-22
 
 ## Context
 The proposed stack was React 18 + Vite + Tailwind + shadcn/Radix + TanStack Query + Supabase for
