@@ -40,6 +40,7 @@ Each must be resolved by a human before it can drive a priced/approved capabilit
 | ~~OQ-6~~ | Fixed-bid reconciliation | **Closed — out of scope** (internal project). Decision `0003`. |
 | ~~OQ-7~~ | Budget / timeline / pod | **Resolved:** no budget constraint — "do what's needed." Staffing firms up as work proceeds. |
 | OQ-8 | What's public vs internal (rootstrapedia holds revenue/deal data) | **Open, lower risk** now the Explorer is internal. Still confirm the public-content boundary before any public surface ships. Owner: Anthony. |
+| OQ-9 | **Reconcile public stats (BR-7).** The live `llms.txt` says **200+ team / 10+ unicorn partnerships**; the June 2026 Overview says **180+ team / 5 $1B+ startups**. The new site + `llms.txt` use the dated-official figures (180+/5); **Marketing must confirm before launch.** Owner: Marketing. |
 
 > **Note on OQ-8 (raised proactively):** the wiki and ICP report contain sensitive figures
 > (revenue, named-client deal values, an anti-ICP "black list"). These are **internal-only** by
