@@ -29,6 +29,7 @@ The brand's design standards — the **quality bar agents and engineers generate
 - **Primary — gold:** `#FFC83F` (`--rs-primary-500`), scale 100→900. The signature Rootstrap accent; used for links/CTAs.
 - **Secondary — periwinkle:** `#778FED` (`--rs-secondary-500`).
 - **Neutrals:** `#F5F5F5` (100) → `#191A1B` (900, near-black). Dark surface = neutral-900; light surface = white.
+- **No pink / no gradient:** the Figma V3 frames show a gold→pink gradient — **not used** (Decision 0015). Gold is the only accent; page *layouts* follow the Figma frames.
 - Semantic tokens for both **light and dark** themes: `--rs-bg`, `--rs-bg-elevated`, `--rs-fg`, `--rs-fg-muted`, `--rs-border`, `--rs-link`.
 
 **Type**
