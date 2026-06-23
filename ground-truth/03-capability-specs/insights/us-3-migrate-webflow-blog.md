@@ -32,10 +32,10 @@ tags: ["migration", "webflow", "blog", "seo"]
 - **Then** every post imports as an `Insight/Post` (title, author, date, body, tags, media) — **none dropped**; a count reconciles source vs. imported.
 
 **Scenario (US-insights-migrate-AC2): SEO preserved**
-- **Then** canonical URLs are preserved or **301-redirected**, and structured data is intact — no ranking regression (the `EV-SEO-REGRESSION` gate).
+- **Then** post URLs are **preserved at `/blog/<slug>`** (decided Jun 2026 — no redirects needed) and `Article` structured data is intact — no ranking regression (the `EV-SEO-REGRESSION` gate).
 
-**Scenario (US-insights-migrate-AC3): Media migrated**
-- **Then** post images/assets move to object storage and are referenced (not hot-linked from Webflow).
+**Scenario (US-insights-migrate-AC3): Media resolved**
+- **Then** every post's images resolve and render. **Phase 1** keeps the Webflow CDN URLs (fast, lossless); **Phase 2** optionally rehosts assets to object storage. None missing.
 
 ## Definition of done
 - [ ] All scenarios pass · source↔imported count reconciles · redirects verified · no placeholder.
@@ -45,7 +45,15 @@ tags: ["migration", "webflow", "blog", "seo"]
 |----|------|----------------|
 | AC1 | migration-completeness check | imported count == source count |
 | AC2 | `EV-SEO-REGRESSION` | URLs/redirects + structured data preserved |
-| AC3 | `EV-NO-PLACEHOLDER` | media resolved, none missing |
+| AC3 | `EV-NO-PLACEHOLDER` | every image resolves (Webflow CDN in phase 1), none missing |
+
+## Migration procedure (decided Jun 2026)
+- **Source:** Webflow Data API v2, `Blog Posts` collection (`646667178da40fc64fe11dd6`) — **375 posts**. Fields: `name` (title), `slug`, `post-body` (HTML), `data-created`, `post-summary`, `main-image`, `featured`, `author`→Authors, `tags`/`main-tag`→Tags, `topic`→Topics.
+- **Target:** Astro content collection `blog` (`apps/marketing/src/content/blog/<slug>.md`); schema in `src/content/config.ts`. Body stored as the post's HTML.
+- **URLs:** kept at **`/blog/<slug>`** (no redirects) to preserve SEO/backlinks.
+- **References:** the script builds id→name maps for Authors and Tags.
+- **Script:** `rs-site/scripts/migrate-blog.mjs` — run `WEBFLOW_TOKEN=… node scripts/migrate-blog.mjs` (CI or local). Claude never holds the token.
+- **Status:** Insights section + template + **2 sample posts shipped**; the full 375-post run is pending the Webflow token.
 
 ## Notes / human gates
-- Source = Webflow CMS export or API; confirm access. One-time migration + ongoing publishing thereafter.
+- Source = Webflow Data API; confirm token access. One-time bulk migration + ongoing publishing thereafter.
