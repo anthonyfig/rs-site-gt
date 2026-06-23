@@ -50,6 +50,7 @@ content ingest. **Out:** Case Studies (own capability), Insights/Blog (own capab
 - [ ] [CONTENT-2 · Present the marketing pages from content](us-2-marketing-pages.md)
 - [ ] [CONTENT-3 · Collection browse / filter / detail](us-3-collection.md)
 - [ ] [CONTENT-4 · Content ingest (upload → propose → human gate)](us-4-content-ingest.md)
+- [ ] [CONTENT-5 · Capability & technology pages](us-5-capability-pages.md)
 
 ## Evals
 `EV-SEO-REGRESSION`, `EV-A11Y`, `EV-GEO`, `EV-DATA`, `EV-INTERNAL-LEAK`, `EV-NO-PLACEHOLDER`, `EV-INGEST-PLACEMENT`, `EV-HUMAN-GATE`.

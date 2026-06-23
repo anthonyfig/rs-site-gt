@@ -5,7 +5,7 @@ part: "03-capability-specs"
 type: user-story
 owner: "Head of Marketing (suggested)"
 status: draft
-delivery_status: backlog
+delivery_status: in-progress
 confidence: medium
 sources: ["Capability gt-03-capability-case-study-showcase", "Decision 0008 (media)", "BR-7, BR-8"]
 updated: 2026-06-22

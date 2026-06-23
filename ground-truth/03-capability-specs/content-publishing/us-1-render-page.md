@@ -5,7 +5,7 @@ part: "03-capability-specs"
 type: user-story
 owner: "Platform Architect (suggested)"
 status: draft
-delivery_status: backlog
+delivery_status: in-progress
 confidence: medium
 sources: ["Capability gt-03-capability-content-publishing", "gt-04-seo-and-llm-discovery", "gt-02-business-rules"]
 updated: 2026-06-22
