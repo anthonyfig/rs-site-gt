@@ -8,11 +8,12 @@ status: approved
 confidence: high
 sources:
   - "Rootstrap Design System (provided Jun 2026) — /design-system/ (standalone reference + assets)"
-updated: 2026-06-22
-last_validated: "2026-06-22"
-validated_by: "Provided as the current design system"
+  - "Figma — RS Website 2026 V3 (file YWgx5Y3TkXGAMcrPcfGqHp): lime/pink explored, NOT adopted — gold retained (Decision 0014)"
+updated: 2026-06-23
+last_validated: "2026-06-23"
+validated_by: "Anthony — gold retained"
 applies_to: ["marketing-site", "explorer"]
-related: ["gt-04-stack-and-architecture", "gt-04-seo-and-llm-discovery"]
+related: ["gt-04-stack-and-architecture", "gt-04-seo-and-llm-discovery", "gt-07-0014-design-system-2026-v3"]
 tags: ["design", "brand", "tokens", "standards"]
 ---
 
@@ -44,7 +45,7 @@ The brand's design standards — the **quality bar agents and engineers generate
 ## How it's used
 - The **marketing site** (Astro) and the **Explorer** both consume these tokens via the shared
   `packages/ui` (shadcn/Radix themed to the tokens). No ad-hoc colors/fonts.
-- The Ground Truth Explorer v0 navigator is already themed to these tokens (gold/periwinkle/near-black, Poppins/Inter/JetBrains).
+- The Ground Truth Explorer v0 navigator is themed to these tokens (gold/periwinkle/near-black, Poppins/Inter/JetBrains); rebuild after a token change.
 - Accessibility (WCAG/POUR) and Core Web Vitals are acceptance criteria; the design system must be applied without regressing them.
 
 > Light + dark are both first-class. Components, spacing, and elevation in the standalone
