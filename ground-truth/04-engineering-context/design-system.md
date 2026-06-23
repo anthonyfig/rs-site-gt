@@ -43,6 +43,16 @@ The brand's design standards — the **quality bar agents and engineers generate
 - `badge-clutch.svg` (Clutch top-rated)
 - Brand shapes: `shape-waves`, `shape-sphere`, `shape-circles`, `shape-grid`
 
+## Logos — never fake one (hard rule)
+
+Never hand-draw, approximate, trace, or AI-generate a logo or brand mark — not Rootstrap's, not a
+client's, not a partner/technology mark (e.g. AWS service icons, Azure, Google Cloud). **Always use
+the real SVG asset:** the Rootstrap logos above, the marketing app's `public/brand/` (Rootstrap +
+badges) and `public/brand/tech/` (technology/partner logos), or Sanity (client logos). If the real
+asset is missing, **stop and ask for it** — do **not** improvise one in inline SVG or CSS. Recognized
+third-party marks should come from an authoritative source (official brand kit, or curated sets like
+devicon / gilbarbara-logos); simple-icons has dropped AWS/Azure marks for trademark reasons.
+
 ## How it's used
 - The **marketing site** (Astro) and the **Explorer** both consume these tokens via the shared
   `packages/ui` (shadcn/Radix themed to the tokens). No ad-hoc colors/fonts.
