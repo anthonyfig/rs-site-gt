@@ -10,7 +10,8 @@ sources:
   - "gt-07-0005-explorer-internal-claude-chat (internal-only chat over Ground Truth via the Anthropic/Claude API + retrieval)"
   - "gt-03-us-explorer-ask (cite artifacts; 'not found' over fabrication; internal-only; server-side key)"
   - "User decision (Jun 2026): 'chat with my ground truth' via the Anthropic API"
-updated: 2026-06-22
+  - "Reference impl: rs-site-gt/tools/ground-truth/ask.mjs (CLI; verified live, claude-sonnet-4-6)"
+updated: 2026-06-23
 last_validated: "pending"
 validated_by: "pending"
 applies_to: ["explorer"]
@@ -33,6 +34,15 @@ artifacts (Decision 0005). Every answer must **cite the artifacts it used** or h
 Let an authenticated internal Rootstrap user interrogate and validate the model conversationally, and
 trust each answer back to its source via citations (gt-03-us-explorer-ask). It is an internal
 validation surface, **not** a public proof surface (Decision 0005).
+
+## Reference implementation (CLI)
+A working server-side reference client exists at `rs-site-gt/tools/ground-truth/ask.mjs` (zero-dep
+Node). It loads the Anthropic API key from the environment / `.env` (**never** client-side), retrieves
+the top-matching Ground Truth artifacts (keyword ranking; the web Explorer will use pgvector), and
+calls the Claude API with a system instruction to **answer only from the provided artifacts, cite
+their ids, and say "not in the Ground Truth" otherwise**. Verified live (model `claude-sonnet-4-6`).
+This proves the contract's core (cite-or-decline) at the CLI; the web feature adds auth + RLS (AC3)
+and pgvector retrieval. Run: `node tools/ground-truth/ask.mjs "question"` (or `--retrieval-only`).
 
 ## Trigger
 An authenticated internal user submits a question in the Explorer's "Ask" mode. Each question

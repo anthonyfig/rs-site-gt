@@ -49,7 +49,7 @@ tags: ["migration", "webflow", "blog", "seo"]
 
 ## Migration procedure (decided Jun 2026)
 - **Source:** Webflow Data API v2, `Blog Posts` collection (`646667178da40fc64fe11dd6`) — **375 posts**. Fields: `name` (title), `slug`, `post-body` (HTML), `data-created`, `post-summary`, `main-image`, `featured`, `author`→Authors, `tags`/`main-tag`→Tags, `topic`→Topics.
-- **Target:** Astro content collection `blog` (`apps/marketing/src/content/blog/<slug>.md`); schema in `src/content/config.ts`. Body stored as the post's HTML.
+- **Target (updated — Decision 0013):** **Sanity** `post` documents — migrate Webflow → Sanity (not Git markdown). Astro reads posts from Sanity at build; the migration script becomes Webflow → Sanity (write token). The local markdown samples remain only as a seed/fallback.
 - **URLs:** kept at **`/blog/<slug>`** (no redirects) to preserve SEO/backlinks.
 - **References:** the script builds id→name maps for Authors and Tags.
 - **Script:** `rs-site/scripts/migrate-blog.mjs` — run `WEBFLOW_TOKEN=… node scripts/migrate-blog.mjs` (CI or local). Claude never holds the token.

@@ -5,13 +5,14 @@ part: "03-capability-specs"
 type: user-story
 owner: "Product Architect (suggested) + Anthony"
 status: draft
-delivery_status: backlog
+delivery_status: in-progress
 confidence: medium
 sources:
   - "Capability gt-03-capability-explorer"
   - "Decision 0005 — internal-only chat over the Ground Truth via the Anthropic (Claude) API with retrieval"
   - "Decision 0010 — the database engine (pgvector) powers chat, rebuilt from Git"
-updated: 2026-06-22
+  - "Reference impl (Jun 2026): rs-site-gt/tools/ground-truth/ask.mjs — CLI, verified live (claude-sonnet-4-6)"
+updated: 2026-06-23
 last_validated: "pending"
 validated_by: "pending"
 applies_to: ["explorer"]
@@ -24,6 +25,13 @@ tags: ["explorer", "ask", "chat", "citations"]
 
 > **Agent-facing.** This is the executable unit: an agent implements it; an *independent* eval
 > verifies it. It is a communication + acceptance unit, **not** an estimate.
+
+> **Shipped — CLI slice (Jun 2026):** a working command-line version exists at
+> `rs-site-gt/tools/ground-truth/ask.mjs` (zero-dep). It retrieves over the Git Ground Truth
+> (keyword ranking), answers via the **Anthropic API** (key server-side, loaded from `.env`),
+> **cites artifact ids**, and returns an honest **"not in the Ground Truth"** when retrieval is
+> empty — satisfying AC1, AC2, AC4 at the CLI. Remaining for `shipped`: the authenticated **web**
+> UI (AC3 internal-only via RLS), pgvector retrieval, and a11y.
 
 **As an** internal Rootstrap user **I want** to ask questions of the Ground Truth in plain language
 and get answers that cite the artifacts they draw from **so that** I can interrogate the model and

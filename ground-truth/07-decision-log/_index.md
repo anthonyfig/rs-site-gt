@@ -35,3 +35,4 @@ the next number and never get rewritten — they get superseded.
 | [0010](0010-git-system-of-record-db-engine.md) | **Git is the system of record; the DB is the engine; the Explorer is a Git-backed UI** | Accepted | 2026-06-22 |
 | [0011](0011-separate-repos-ground-truth-vs-website.md) | Separate repos (not submodules): **rs-site-gt** (content) · **rs-ip** (method) · **rs-site** (code) | Accepted | 2026-06-22 |
 | [0012](0012-capability-vs-content-definition.md) | **A capability is a function, not a page; add the Content layer** | Accepted | 2026-06-22 |
+| [0013](0013-marketing-content-in-sanity.md) | **Marketing content moves to Sanity (headless CMS)**; Astro builds from it; Webflow retired _(refines 0010, confirms 0006)_ | Approved | 2026-06-23 |
