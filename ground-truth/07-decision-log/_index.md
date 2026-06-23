@@ -38,3 +38,4 @@ the next number and never get rewritten — they get superseded.
 | [0013](0013-marketing-content-in-sanity.md) | **Marketing content moves to Sanity (headless CMS)**; Astro builds from it; Webflow retired _(refines 0010, confirms 0006)_ | Approved | 2026-06-23 |
 | [0014](0014-design-system-2026-v3.md) | **Keep the gold primary** — Figma V3 lime/pink evaluated, not adopted (gold `#FFC83F` stays) | Approved | 2026-06-23 |
 | [0015](0015-figma-v3-page-frames-source-of-truth.md) | **Figma V3 page frames = design source of truth** (Home/About/Portfolio/Services/Capabilities/AI); gold, no pink gradient | Approved | 2026-06-23 |
+| [0016](0016-explorer-edits-ground-truth-vercel.md) | **Explorer edits the Ground Truth** (tone, ICP) behind a human gate; **deploys to Vercel** | Approved | 2026-06-23 |

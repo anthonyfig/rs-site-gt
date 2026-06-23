@@ -62,6 +62,7 @@ content ingest. **Out:** Case Studies (own capability), Insights/Blog (own capab
 
 ## Open questions / human gates
 - CMS approach: **resolved — Sanity** (headless CMS) feeds the Astro build (Decision 0013). Case studies + blog/insights are authored in Sanity Studio; the capability *model* stays in Git.
+- **Sanity-editable scope:** copy + proof — case studies, posts, testimonials, stats, client logos, and editable page *sections* — are Sanity-managed; **bespoke page layouts stay in Astro code**. Manageability map + recommended schemas (homePage, testimonial, clientLogo, stat, faq, award, teamMember) in `rs-site/docs/azumo-benchmark-and-proposals.md`.
 - Which pages are launch-critical.
 
 ## Sources & traceability
