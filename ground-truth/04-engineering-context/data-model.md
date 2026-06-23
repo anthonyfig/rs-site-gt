@@ -51,7 +51,7 @@ Keep the schema small and derived. Each row carries an `id` that matches the art
 
 | Table | Purpose | Key fields |
 |-------|---------|-----------|
-| **artifact** | One row per Ground Truth artifact (part, spec, story, etc.) | `id`, `title`, `part`, `type`, `status` (draft/approved), `confidence`, `owner`, `last_validated`, `body` (markdown), `source_path`, `is_internal` (bool), `embedding` (pgvector) |
+| **artifact** | One row per Ground Truth artifact (part, spec, story, etc.) | `id`, `title`, `part`, `type`, `status` (spec lifecycle), `delivery_status` (story build progress), `confidence`, `owner`, `last_validated`, `body` (markdown), `source_path`, `is_internal` (bool), `embedding` (pgvector) |
 | **decision** | Architecture/ADR decisions (Part 07) | `id`, `title`, `status`, `date`, `owner`, `supersedes`, `body`, `source_path` |
 | **open_question** | Tracked unknowns (the anti-placeholder rule, BR-11) | `id`, `question`, `status` (open/resolved), `owner`, `blocks` (artifact ids), `source_path` |
 | **edge** | Typed relationships between artifacts (the graph) | `from_id`, `to_id`, `kind` (related / derives-from / supersedes / blocks), `source_path` |
@@ -66,7 +66,9 @@ Supporting structures (kept minimal):
 
 ### Notes on key fields
 - **`status` + `confidence`** drive **BR-1** (only `approved` truth may drive a production build or a
-  priced capability) and let the Explorer visibly distinguish draft vs approved.
+  priced capability) and let the Explorer visibly distinguish draft vs approved. **`delivery_status`**
+  (user stories only) separately tracks build progress (backlog→in-progress→in-review→shipped) so the
+  Explorer can run like a board; it never overrides the spec `status`.
 - **`edge.kind`** captures the relationships the domain model already names (`related`,
   derives-from, supersedes, blocks) so the graph view and traceability are queryable, not implicit.
 - **`media_asset.attached_to`** is how a case study "shows all its materials" — one artifact, many

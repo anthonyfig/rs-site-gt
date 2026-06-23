@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-lead-submit
-title: "US-1 — Submit & create an attributed contact"
+title: "LEAD-1 · Submit & create an attributed contact"
 part: "03-capability-specs"
 type: user-story
 owner: "Head of Sales (suggested)"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources: ["Capability gt-03-capability-lead-capture", "gt-05-hubspot", "gt-01-audience-and-icp"]
 updated: 2026-06-22

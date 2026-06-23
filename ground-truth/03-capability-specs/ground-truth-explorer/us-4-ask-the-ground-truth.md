@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-explorer-ask
-title: "US-4 — Ask the Ground Truth (chat with citations)"
+title: "EXPLORER-4 · Ask the Ground Truth (chat with citations)"
 part: "03-capability-specs"
 type: user-story
 owner: "Product Architect (suggested) + Anthony"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources:
   - "Capability gt-03-capability-explorer"

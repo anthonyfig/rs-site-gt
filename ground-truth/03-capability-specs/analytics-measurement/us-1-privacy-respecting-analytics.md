@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-privacy-analytics
-title: "US-1 — Privacy-respecting analytics"
+title: "ANALYTICS-1 · Privacy-respecting analytics"
 part: "03-capability-specs"
 type: user-story
 owner: "Head of Marketing (suggested) + Platform Architect"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources:
   - "Capability gt-03-capability-analytics-measurement"

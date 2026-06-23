@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-explorer-ingest
-title: "US-6 — Ingest a document (proposed placement + human gate)"
+title: "EXPLORER-6 · Ingest a document (proposed placement + human gate)"
 part: "03-capability-specs"
 type: user-story
 owner: "Product Architect (suggested) + Anthony"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources:
   - "Capability gt-03-capability-explorer"

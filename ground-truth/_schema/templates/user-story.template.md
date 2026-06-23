@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-<slug>
-title: "<short story title>"
+title: "<CODE>-<n> · <short story title>"   # CODE = capability code: LEAD CONTENT CASE INSIGHT NAV SEO EXPLORER ANALYTICS
 part: "03-capability-specs"
 type: user-story
 owner: "<role — person>"
 status: draft
+delivery_status: backlog   # build progress: backlog | in-progress | in-review | shipped
 confidence: medium
 sources: []
 updated: 2026-06-22

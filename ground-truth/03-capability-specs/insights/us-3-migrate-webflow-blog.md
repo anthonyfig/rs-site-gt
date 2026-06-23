@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-insights-migrate-webflow
-title: "US-3 — Migrate the Webflow blog"
+title: "INSIGHT-3 · Migrate the Webflow blog"
 part: "03-capability-specs"
 type: user-story
 owner: "Head of Marketing (suggested) + Platform Architect"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources: ["Capability gt-03-capability-insights", "live: rootstrap.com/blog (Webflow CMS)", "gt-02-content-types (Insight/Post)", "Decision 0006 (exit Webflow)"]
 updated: 2026-06-22

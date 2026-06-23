@@ -67,9 +67,9 @@ Satisfied by the sum of the user stories below.
 - [ ] No published stat is unverified (BR-7); no internal data leaks (BR-8); no "Anthropic partner" claim (BR-12); no placeholder (BR-11).
 
 ## User stories (agent-facing)
-- [ ] [US-1 — Server-rendered semantic HTML + metadata + structured data](us-1-server-rendered-semantic-html.md)
-- [ ] [US-2 — Machine-discovery surfaces (sitemap, robots, llms.txt)](us-2-machine-discovery-surfaces.md)
-- [ ] [US-3 — 301 redirects from old rootstrap.com URLs](us-3-redirects-from-old-urls.md)
+- [ ] [SEO-1 · Server-rendered semantic HTML + metadata + structured data](us-1-server-rendered-semantic-html.md)
+- [ ] [SEO-2 · Machine-discovery surfaces (sitemap, robots, llms.txt)](us-2-machine-discovery-surfaces.md)
+- [ ] [SEO-3 · 301 redirects from old rootstrap.com URLs](us-3-redirects-from-old-urls.md)
 
 ## Evals
 `EV-SEO-REGRESSION` (server-rendered content + valid metadata/canonicals/structured-data + redirects),

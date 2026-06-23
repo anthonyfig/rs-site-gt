@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-case-study-upload-ingest
-title: "US-3 — Upload case-study materials (intelligent ingest)"
+title: "CASE-3 · Upload case-study materials (intelligent ingest)"
 part: "03-capability-specs"
 type: user-story
 owner: "Head of Marketing (suggested) + Product Architect"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources: ["Capability gt-03-capability-case-study-showcase", "Decision 0008 (DB-backed, media, intelligent ingest)", "BR-5 (human gates), BR-8"]
 updated: 2026-06-22

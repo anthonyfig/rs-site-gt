@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-content-collection
-title: "US-3 — Collection browse / filter / detail"
+title: "CONTENT-3 · Collection browse / filter / detail"
 part: "03-capability-specs"
 type: user-story
 owner: "Head of Marketing (suggested)"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources: ["Capability gt-03-capability-content-publishing", "gt-02-content-types (Collection, Industry)", "gt-02-business-rules (BR-13)"]
 updated: 2026-06-22

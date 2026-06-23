@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-case-study-browse-filter
-title: "US-1 — Browse & filter case studies"
+title: "CASE-1 · Browse & filter case studies"
 part: "03-capability-specs"
 type: user-story
 owner: "Head of Marketing (suggested)"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources: ["Capability gt-03-capability-case-study-showcase", "Notion: ICP & Buyer Persona Report (May 2026)"]
 updated: 2026-06-22

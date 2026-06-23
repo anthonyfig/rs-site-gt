@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-redirects
-title: "US-3 — 301 redirects from old rootstrap.com URLs"
+title: "SEO-3 · 301 redirects from old rootstrap.com URLs"
 part: "03-capability-specs"
 type: user-story
 owner: "Platform Architect (suggested) + Head of Marketing"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources:
   - "Capability gt-03-capability-discoverability"

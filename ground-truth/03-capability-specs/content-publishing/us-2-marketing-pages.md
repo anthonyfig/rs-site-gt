@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-content-marketing-pages
-title: "US-2 — Present the marketing pages from content"
+title: "CONTENT-2 · Present the marketing pages from content"
 part: "03-capability-specs"
 type: user-story
 owner: "Head of Marketing (suggested)"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources: ["Capability gt-03-capability-content-publishing", "gt-01-goals-and-scope", "gt-01-audience-and-icp", "gt-02-entities"]
 updated: 2026-06-22

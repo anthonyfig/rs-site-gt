@@ -66,9 +66,9 @@ SEO/structured-data and `llms.txt` (Discoverability); the case-study filter taxo
 - [ ] No placeholder/lorem nav labels or links (BR-11); no internal-only destinations exposed (BR-8).
 
 ## User stories (agent-facing)
-- [ ] [US-1 — Primary navigation (header · footer · mobile menu · CTA)](us-1-primary-navigation.md)
-- [ ] [US-2 — Find content across collections](us-2-find-content.md)
-- [ ] [US-3 — Wayfinding & accessibility (breadcrumbs · skip-link · landmarks)](us-3-wayfinding-a11y.md)
+- [ ] [NAV-1 · Primary navigation (header · footer · mobile menu · CTA)](us-1-primary-navigation.md)
+- [ ] [NAV-2 · Find content across collections](us-2-find-content.md)
+- [ ] [NAV-3 · Wayfinding & accessibility (breadcrumbs · skip-link · landmarks)](us-3-wayfinding-a11y.md)
 
 ## Evals
 `EV-A11Y`, `EV-SEO-REGRESSION` (links present and crawlable in initial HTML), plus a functional

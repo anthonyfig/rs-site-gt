@@ -49,9 +49,9 @@ Ingest agent (classifies uploads, proposes placement) · the system.
 - [ ] Editors can upload materials and publish via a **human gate** — no engineering, no auto-publish.
 
 ## User stories (agent-facing)
-- [ ] [US-1 — Browse & filter case studies](us-1-browse-and-filter.md)
-- [ ] [US-2 — Rich case-study detail with media](us-2-detail-with-media.md)
-- [ ] [US-3 — Upload case-study materials (intelligent ingest)](us-3-upload-materials-ingest.md)
+- [ ] [CASE-1 · Browse & filter case studies](us-1-browse-and-filter.md)
+- [ ] [CASE-2 · Rich case-study detail with media](us-2-detail-with-media.md)
+- [ ] [CASE-3 · Upload case-study materials (intelligent ingest)](us-3-upload-materials-ingest.md)
 
 ## Evals
 `EV-CS-FILTER`, `EV-CS-DETAIL`, `EV-INGEST-PLACEMENT`, plus shared `EV-DATA`, `EV-INTERNAL-LEAK`,

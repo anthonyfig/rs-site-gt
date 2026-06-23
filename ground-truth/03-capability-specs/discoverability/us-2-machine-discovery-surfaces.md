@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-machine-surfaces
-title: "US-2 — Machine-discovery surfaces (sitemap, robots, llms.txt)"
+title: "SEO-2 · Machine-discovery surfaces (sitemap, robots, llms.txt)"
 part: "03-capability-specs"
 type: user-story
 owner: "Head of Marketing (suggested) + Platform Architect"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources:
   - "Capability gt-03-capability-discoverability"

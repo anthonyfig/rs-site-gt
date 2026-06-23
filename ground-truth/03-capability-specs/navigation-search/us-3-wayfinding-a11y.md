@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-wayfinding-a11y
-title: "US-3 — Wayfinding & accessibility (breadcrumbs · skip-link · landmarks)"
+title: "NAV-3 · Wayfinding & accessibility (breadcrumbs · skip-link · landmarks)"
 part: "03-capability-specs"
 type: user-story
 owner: "Product Architect (suggested)"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources:
   - "Capability gt-03-capability-navigation-search"

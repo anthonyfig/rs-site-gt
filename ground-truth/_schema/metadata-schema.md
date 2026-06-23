@@ -12,6 +12,7 @@ part: "01-project-context"         # which blueprint part
 type: project-context              # see Types below
 owner: "Head of Marketing (suggested) — Anthony, sponsor"  # the human accountable
 status: draft                      # draft | in-review | approved | needs-revalidation | deprecated
+delivery_status: backlog           # user-story only: backlog | in-progress | in-review | shipped (build progress; distinct from status)
 confidence: medium                 # high | medium | low
 sources:                           # provenance — every claim must be traceable
   - "Delivery v2 deck — /sources/ai-native-delivery.html (Jun 2026)"
@@ -31,7 +32,7 @@ tags: ["positioning"]
 | Field | Required | Notes |
 |-------|----------|-------|
 | `id` | ✅ | Stable identity. The Explorer and agents reference artifacts by `id`, not path. |
-| `title` | ✅ | |
+| `title` | ✅ | For a `user-story`, prefix with the capability code + number for cross-reference: `LEAD-1 · …`, `CASE-2 · …` (codes: LEAD CONTENT CASE INSIGHT NAV SEO EXPLORER ANALYTICS). |
 | `part` | ✅ | One of `01-project-context` … `07-decision-log`, or `_schema`. |
 | `type` | ✅ | `project-context`, `domain-entity`, `vocabulary`, `business-rule`, `capability-spec`, `user-story`, `media-asset`, `case-study`, `engineering-context`, `integration-contract`, `eval`, `decision`. |
 | `owner` | ✅ | A role and/or person. "Unowned" is not allowed; use `owner: "TBD — needs assignment"` and raise an open question. |
@@ -42,6 +43,7 @@ tags: ["positioning"]
 | `applies_to` | ✅ | Keeps scope explicit; lets agents load only relevant context. |
 | `related` | ➖ | Cross-links become the Business Twin graph edges. |
 | `capability` | ➖ | On a `user-story`: the parent capability's `id` (Decision 0007). |
+| `delivery_status` | ➖ | On a `user-story`: **build progress** (backlog/in-progress/in-review/shipped), distinct from `status` (spec lifecycle). Tracked in Git, mirrored to the DB. |
 | `media` | ➖ | Attached `media-asset` ids / paths (images, video, docs) — Decision 0008. |
 
 > **Storage note (Decisions 0009/0010):** **Git is the system of record** for these markdown

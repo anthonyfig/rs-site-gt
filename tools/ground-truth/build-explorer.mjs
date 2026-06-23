@@ -63,7 +63,7 @@ const items = raw.map(it => {
     type: it.meta.type || 'doc', status: it.meta.status || '', confidence: it.meta.confidence || '',
     owner: it.meta.owner || '', last_validated: it.meta.last_validated || '', validated_by: it.meta.validated_by || '',
     surfaces: it.meta.applies_to || [], sources: it.meta.sources || [], related: (it.meta.related || []).filter(r => titleById[r]),
-    tags: it.meta.tags || [], tier: it.meta.tier || '', capability: it.meta.capability || '', bodyHtml, searchText,
+    tags: it.meta.tags || [], tier: it.meta.tier || '', capability: it.meta.capability || '', deliveryStatus: it.meta.delivery_status || '', bodyHtml, searchText,
   };
 });
 const backlinks = {};
@@ -148,7 +148,7 @@ const overview = '<section id="view-overview" class="view">'
   + '<h2>Decisions</h2><ul class="dl">' + decisions + '</ul>'
   + '</section>';
 
-const TH = [['title','Title'],['part','Area'],['type','Type'],['status','Status'],['confidence','Confidence'],['owner','Owner'],['last_validated','Last validated']];
+const TH = [['title','Title'],['part','Area'],['type','Type'],['status','Status'],['delivery_status','Delivery'],['confidence','Confidence'],['owner','Owner'],['last_validated','Last validated']];
 const thead = '<tr>' + TH.map(([k,l]) => '<th data-key="' + k + '">' + l + ' <span class="ar" data-ar="' + k + '"></span></th>').join('') + '</tr>';
 const tableView = '<section id="view-table" class="view"><div class="ey">Browse · the core</div><h1 class="t">All artifacts</h1>'
   + '<p class="lead">Every piece of the model in one place. Filter with the controls on the left, click a column to sort, click a row to open it.</p>'
@@ -172,7 +172,7 @@ const mapView = '<section id="view-map" class="view"><div class="ey">Relationshi
 
 // ---- data for JS ----
 const D = {
-  items: items.map(i => ({ id: i.id, title: i.title, part: i.part, type: i.type, status: i.status, confidence: i.confidence, owner: i.owner, last_validated: i.last_validated, isArtifact: i.isArtifact, surfaces: i.surfaces, related: i.related, backlinks: backlinks[i.id] || [], capability: i.capability, searchText: i.searchText })),
+  items: items.map(i => ({ id: i.id, title: i.title, part: i.part, type: i.type, status: i.status, delivery_status: i.deliveryStatus, confidence: i.confidence, owner: i.owner, last_validated: i.last_validated, isArtifact: i.isArtifact, surfaces: i.surfaces, related: i.related, backlinks: backlinks[i.id] || [], capability: i.capability, searchText: i.searchText })),
   sections: SECTIONS, colors: COLORS, statusColor: STATUS_COLOR, surfaces, stats: st, health,
   generated: new Date().toISOString().slice(0, 16).replace('T', ' '),
 };
@@ -245,6 +245,7 @@ function renderTable(){
     tr.appendChild(td(areaLabel(i.part),"c-dim"));
     tr.appendChild(td(i.type,"c-dim"));
     var ts=ce("td");var bd=ce("span","badge b-"+i.status);bd.textContent=i.status||"—";ts.appendChild(bd);tr.appendChild(ts);
+    tr.appendChild(td(i.delivery_status||"—","c-dim"));
     tr.appendChild(td(i.confidence||"—","c-dim"));
     tr.appendChild(td(i.owner||"—","c-dim"));
     tr.appendChild(td(i.last_validated||"—","c-dim"));

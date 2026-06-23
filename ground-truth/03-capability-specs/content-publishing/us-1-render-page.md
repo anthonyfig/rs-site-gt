@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-content-render
-title: "US-1 — Render any page/collection (server-side, structured, accessible)"
+title: "CONTENT-1 · Render any page/collection (server-side, structured, accessible)"
 part: "03-capability-specs"
 type: user-story
 owner: "Platform Architect (suggested)"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources: ["Capability gt-03-capability-content-publishing", "gt-04-seo-and-llm-discovery", "gt-02-business-rules"]
 updated: 2026-06-22

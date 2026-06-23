@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-lead-scheduling
-title: "US-2 — Direct scheduling & Slack notification"
+title: "LEAD-2 · Direct scheduling & Slack notification"
 part: "03-capability-specs"
 type: user-story
 owner: "Head of Sales (suggested) + Platform Architect"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources: ["Capability gt-03-capability-lead-capture", "gt-05-hubspot (Meetings + Slack)"]
 updated: 2026-06-22

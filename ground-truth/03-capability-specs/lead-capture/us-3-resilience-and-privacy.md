@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-lead-resilience
-title: "US-3 — Resilience & privacy"
+title: "LEAD-3 · Resilience & privacy"
 part: "03-capability-specs"
 type: user-story
 owner: "Platform Architect (suggested)"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources: ["Capability gt-03-capability-lead-capture", "gt-05-hubspot", "gt-02-business-rules (BR-8), Decision 0003"]
 updated: 2026-06-22

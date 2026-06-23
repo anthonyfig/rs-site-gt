@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-explorer-map
-title: "US-2 — Explore one artifact's relationships (focus + context)"
+title: "EXPLORER-2 · Explore one artifact's relationships (focus + context)"
 part: "03-capability-specs"
 type: user-story
 owner: "Product Architect (suggested) + Anthony"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources:
   - "Capability gt-03-capability-explorer"

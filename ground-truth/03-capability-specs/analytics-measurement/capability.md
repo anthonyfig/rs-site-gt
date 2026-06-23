@@ -63,8 +63,8 @@ GEO/SEO content strategy (`04` defines it — this capability only measures it).
 - [ ] **No internal data** (revenue, deal size, anti-ICP signals) is ever sent to analytics or Slack (BR-8).
 
 ## User stories (agent-facing)
-- [ ] [US-1 — Privacy-respecting analytics](us-1-privacy-respecting-analytics.md)
-- [ ] [US-2 — Conversion tracking & attribution](us-2-conversion-tracking.md)
+- [ ] [ANALYTICS-1 · Privacy-respecting analytics](us-1-privacy-respecting-analytics.md)
+- [ ] [ANALYTICS-2 · Conversion tracking & attribution](us-2-conversion-tracking.md)
 
 ## Evals
 `EV-NO-PII-URL` (no personal data in URLs/query strings), `EV-CONSENT-DEFAULT` (non-essential

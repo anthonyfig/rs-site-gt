@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-case-study-detail-media
-title: "US-2 — Rich case-study detail with media"
+title: "CASE-2 · Rich case-study detail with media"
 part: "03-capability-specs"
 type: user-story
 owner: "Head of Marketing (suggested)"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources: ["Capability gt-03-capability-case-study-showcase", "Decision 0008 (media)", "BR-7, BR-8"]
 updated: 2026-06-22

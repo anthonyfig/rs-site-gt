@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-insights-index
-title: "US-1 — Insights index & filter"
+title: "INSIGHT-1 · Insights index & filter"
 part: "03-capability-specs"
 type: user-story
 owner: "Head of Marketing (suggested)"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources: ["Capability gt-03-capability-insights"]
 updated: 2026-06-22

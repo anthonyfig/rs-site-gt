@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-find-content
-title: "US-2 — Find content across collections"
+title: "NAV-2 · Find content across collections"
 part: "03-capability-specs"
 type: user-story
 owner: "Head of Marketing (suggested) + Platform Architect"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources:
   - "Capability gt-03-capability-navigation-search"

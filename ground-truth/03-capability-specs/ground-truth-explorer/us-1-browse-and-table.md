@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-explorer-table
-title: "US-1 — Browse the Ground Truth in a table"
+title: "EXPLORER-1 · Browse the Ground Truth in a table"
 part: "03-capability-specs"
 type: user-story
 owner: "Product Architect (suggested) + Anthony"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources:
   - "Capability gt-03-capability-explorer"

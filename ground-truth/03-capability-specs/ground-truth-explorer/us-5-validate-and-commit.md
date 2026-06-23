@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-explorer-validate
-title: "US-5 — Validate an artifact → clean commit"
+title: "EXPLORER-5 · Validate an artifact → clean commit"
 part: "03-capability-specs"
 type: user-story
 owner: "Product Architect (suggested) + Anthony"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources:
   - "Capability gt-03-capability-explorer"

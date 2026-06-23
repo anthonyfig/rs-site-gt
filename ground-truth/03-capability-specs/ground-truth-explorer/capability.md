@@ -87,12 +87,12 @@ Satisfied by the sum of the six user stories below.
   the engine, rebuilt from Git (Decision 0010).
 
 ## User stories (agent-facing)
-- [ ] [US-1 — Browse the Ground Truth in a table](us-1-browse-and-table.md) — the core surface.
-- [ ] [US-2 — Explore one artifact's relationships (focus + context)](us-2-relationship-map.md)
-- [ ] [US-3 — See health & gaps in the model](us-3-health-and-gaps.md)
-- [ ] [US-4 — Ask the Ground Truth (chat with citations)](us-4-ask-the-ground-truth.md)
-- [ ] [US-5 — Validate an artifact → clean commit](us-5-validate-and-commit.md)
-- [ ] [US-6 — Ingest a document (proposed placement + human gate)](us-6-ingest-a-document.md)
+- [ ] [EXPLORER-1 · Browse the Ground Truth in a table](us-1-browse-and-table.md) — the core surface.
+- [ ] [EXPLORER-2 · Explore one artifact's relationships (focus + context)](us-2-relationship-map.md)
+- [ ] [EXPLORER-3 · See health & gaps in the model](us-3-health-and-gaps.md)
+- [ ] [EXPLORER-4 · Ask the Ground Truth (chat with citations)](us-4-ask-the-ground-truth.md)
+- [ ] [EXPLORER-5 · Validate an artifact → clean commit](us-5-validate-and-commit.md)
+- [ ] [EXPLORER-6 · Ingest a document (proposed placement + human gate)](us-6-ingest-a-document.md)
 
 ## Evals
 Per-story functional evals (in each story), plus the shared suite: `EV-GT-CONSISTENCY` (the model is

@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-conversion-tracking
-title: "US-2 — Conversion tracking & attribution"
+title: "ANALYTICS-2 · Conversion tracking & attribution"
 part: "03-capability-specs"
 type: user-story
 owner: "Head of Sales/Growth (suggested) + Platform Architect"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources:
   - "Capability gt-03-capability-analytics-measurement"

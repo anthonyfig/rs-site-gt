@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-explorer-health
-title: "US-3 — See health & gaps in the model"
+title: "EXPLORER-3 · See health & gaps in the model"
 part: "03-capability-specs"
 type: user-story
 owner: "Product Architect (suggested) + Anthony"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources:
   - "Capability gt-03-capability-explorer"

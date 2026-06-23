@@ -46,9 +46,9 @@ Satisfied by the sum of the user stories below.
 - [ ] No PII in URLs; accessible (WCAG AA); no pricing/timeline promise the business hasn't approved (Decision 0003).
 
 ## User stories (agent-facing)
-- [ ] [US-1 — Submit & create an attributed contact](lead-capture/us-1-submit-create-contact.md)
-- [ ] [US-2 — Direct scheduling & Slack notification](lead-capture/us-2-scheduling-and-slack.md)
-- [ ] [US-3 — Resilience & privacy](lead-capture/us-3-resilience-and-privacy.md)
+- [ ] [LEAD-1 · Submit & create an attributed contact](lead-capture/us-1-submit-create-contact.md)
+- [ ] [LEAD-2 · Direct scheduling & Slack notification](lead-capture/us-2-scheduling-and-slack.md)
+- [ ] [LEAD-3 · Resilience & privacy](lead-capture/us-3-resilience-and-privacy.md)
 
 ## Evals
 `EV-LEAD-HAPPY`, `EV-LEAD-RESILIENCE`, `EV-LEAD-A11Y`, `EV-NO-PII-URL` (see `06-eval-suite`).

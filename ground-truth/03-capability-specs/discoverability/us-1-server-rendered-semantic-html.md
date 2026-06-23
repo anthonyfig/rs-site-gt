@@ -1,10 +1,11 @@
 ---
 id: gt-03-us-ssr-semantic
-title: "US-1 — Server-rendered semantic HTML + metadata + structured data"
+title: "SEO-1 · Server-rendered semantic HTML + metadata + structured data"
 part: "03-capability-specs"
 type: user-story
 owner: "Platform Architect (suggested)"
 status: draft
+delivery_status: backlog
 confidence: medium
 sources:
   - "Capability gt-03-capability-discoverability"

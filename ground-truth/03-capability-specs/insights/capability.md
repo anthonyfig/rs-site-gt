@@ -41,9 +41,9 @@ Visitor / researcher (and AI crawlers) · Marketing editor / author.
 - [ ] Accurate claims (BR-7/12); no internal data (BR-8); WCAG AA; no placeholder.
 
 ## User stories (agent-facing)
-- [ ] [US-1 — Insights index & filter](us-1-insights-index.md)
-- [ ] [US-2 — Article page (SEO + LLM discovery)](us-2-insights-article.md)
-- [ ] [US-3 — Migrate the Webflow blog](us-3-migrate-webflow-blog.md)
+- [ ] [INSIGHT-1 · Insights index & filter](us-1-insights-index.md)
+- [ ] [INSIGHT-2 · Article page (SEO + LLM discovery)](us-2-insights-article.md)
+- [ ] [INSIGHT-3 · Migrate the Webflow blog](us-3-migrate-webflow-blog.md)
 
 ## Evals
 `EV-SEO-REGRESSION`, `EV-GEO`, `EV-A11Y`, `EV-DATA`, `EV-INTERNAL-LEAK`, `EV-NO-PLACEHOLDER`.
