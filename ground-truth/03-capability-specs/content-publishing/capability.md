@@ -9,11 +9,11 @@ confidence: medium
 sources:
   - "Decision 0012 (capability vs content); gt-02-content-types"
   - "Part 01 positioning/audience; gt-02-entities (offering, proof); /ai-landing; June 2026 Overview"
-updated: 2026-06-22
+updated: 2026-06-23
 last_validated: "pending"
 validated_by: "pending"
 applies_to: ["marketing-site"]
-related: ["gt-02-content-types", "gt-02-entities", "gt-01-goals-and-scope", "gt-03-capability-lead-capture", "gt-04-seo-and-llm-discovery"]
+related: ["gt-02-content-types", "gt-02-entities", "gt-01-goals-and-scope", "gt-03-capability-lead-capture", "gt-04-seo-and-llm-discovery", "gt-07-0013-marketing-content-in-sanity", "gt-05-sanity"]
 tags: ["content", "publishing", "pages"]
 tier: "C3"
 ---
@@ -28,6 +28,11 @@ tier: "C3"
 ## Purpose
 Present every page and collection correctly, on-brand, accessible, and discoverable — and let
 editors maintain content without engineering. (One function serving many content items — Decision 0012.)
+
+> **Content source (Decision 0013):** marketing **content instances** (case studies, blog/insights,
+> editable page copy) are authored in **Sanity** (Studio) and read by Astro at build. The Ground
+> Truth *model* (this repo) stays in Git. "From the Ground Truth" above refers to the model/spec; the
+> published copy lives in Sanity.
 
 ## Actors
 Visitor (+ AI crawlers) · Marketing editor · Ingest agent · System.
@@ -56,7 +61,7 @@ content ingest. **Out:** Case Studies (own capability), Insights/Blog (own capab
 `EV-SEO-REGRESSION`, `EV-A11Y`, `EV-GEO`, `EV-DATA`, `EV-INTERNAL-LEAK`, `EV-NO-PLACEHOLDER`, `EV-INGEST-PLACEMENT`, `EV-HUMAN-GATE`.
 
 ## Open questions / human gates
-- CMS approach: Astro content collections vs. a headless CMS feeding the build → Platform Architect (OQ-3 family).
+- CMS approach: **resolved — Sanity** (headless CMS) feeds the Astro build (Decision 0013). Case studies + blog/insights are authored in Sanity Studio; the capability *model* stays in Git.
 - Which pages are launch-critical.
 
 ## Sources & traceability

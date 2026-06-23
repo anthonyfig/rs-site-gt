@@ -31,6 +31,10 @@ truth.
 > Storage for binaries). The DB is never hand-edited as truth — the Explorer writes to Git, CI
 > rebuilds the DB. **Write path:** Explorer → Git → CI rebuilds the DB. **Read path:** DB.
 
+> **Scope (Decision 0013):** this model is the **Ground Truth** (capabilities, decisions, domain).
+> **Marketing content** — case studies, blog/insights — does **not** live here; it lives in **Sanity**
+> and is read by Astro at build. This DB never holds published marketing content.
+
 ## What the database is — and isn't
 
 | | Git (system of record) | Database (the engine) |
