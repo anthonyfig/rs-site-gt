@@ -7,20 +7,27 @@ owner: "Head of Marketing (suggested) + Product Architect"
 status: draft
 delivery_status: backlog
 confidence: medium
-sources: ["Capability gt-03-capability-case-study-showcase", "Decision 0008 (DB-backed, media, intelligent ingest)", "BR-5 (human gates), BR-8"]
-updated: 2026-06-22
+sources: ["Capability gt-03-capability-case-study-showcase", "Decision 0008 (DB-backed, media, intelligent ingest)", "Decision 0013 (Sanity Studio = baseline no-code authoring + media)", "BR-5 (human gates), BR-8"]
+updated: 2026-06-23
 last_validated: "pending"
 validated_by: "pending"
 applies_to: ["explorer", "marketing-site"]
 capability: gt-03-capability-case-study-showcase
-related: ["gt-03-capability-case-study-showcase", "gt-07-0008-ground-truth-database-backed-and-media", "gt-02-business-rules"]
+related: ["gt-03-capability-case-study-showcase", "gt-07-0008-ground-truth-database-backed-and-media", "gt-07-0013-marketing-content-in-sanity", "gt-05-sanity", "gt-02-business-rules"]
 tags: ["ingest", "media", "human-gate", "upload"]
 ---
 
 # User story: Upload case-study materials (intelligent ingest)
 
-> This is the story that exercises Decision 0008: upload → the system places it in the Ground
-> Truth → a human approves. The agent **proposes**; it never publishes on its own.
+> This is the story that exercises Decision 0008: upload → the system places it → a human approves.
+> The agent **proposes**; it never publishes on its own.
+
+> **Reconciled with Decision 0013.** The **baseline** no-code path for a published case study is
+> **Sanity Studio**: the editor fills the `caseStudy` fields, uploads media to **Sanity's asset
+> pipeline**, then hits **Publish** (the human gate) — which triggers an Astro rebuild. This story
+> (the AI *ingest-proposes-placement* flow) is the **optional automation** on top: it drafts a case
+> study from an uploaded deck, and its output lands as a Sanity **draft** for the same human approval.
+> Published case-study content + media live in **Sanity**, not Supabase Storage.
 
 **As a** marketing editor **I want** to upload a case study's materials (deck, images, video,
 metrics) and have the system place them in the Ground Truth for my review **so that** I can publish
@@ -33,7 +40,8 @@ proof without engineering.
 | Ingest agent | Read/classify the upload; draft an artifact; attach media; **propose** placement | Publish; overwrite approved truth; decide ambiguity |
 
 ## Preconditions
-- The Explorer's upload interface and Storage are available (Supabase); the editor is authenticated.
+- **Baseline:** the editor authors in **Sanity Studio** (Decision 0013).
+- **For the optional AI-ingest flow:** an upload interface is available and the editor is authenticated; the agent's drafts land in Sanity for approval.
 
 ## Acceptance criteria — scenarios
 **Scenario: Ingest proposes placement**
@@ -47,7 +55,7 @@ proof without engineering.
 - **Then** nothing is published; approval is required to move it toward `approved`.
 
 **Scenario: Media stored + attached**
-- **Then** images/video are stored in Storage and linked to the case-study artifact (not pasted into text).
+- **Then** images/video are stored in **Sanity's asset pipeline** (Decision 0013) and linked to the `caseStudy` (not pasted into text).
 
 **Scenario: Internal data flagged, not published (BR-8)**
 - **Given** the source deck contains revenue/deal figures
