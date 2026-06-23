@@ -160,7 +160,7 @@ const healthView = '<section id="view-health" class="view"><div class="ey">Healt
   + '<div id="healthBody"></div></section>';
 
 const mapOptions = PART_ORDER.map(p => {
-  const its = arts.filter(i => i.part === p);
+  const its = arts.filter(i => i.part === p && i.type !== 'user-story');
   if (!its.length) return '';
   return '<optgroup label="' + esc((SECTIONS[p]||{}).label || p) + '">' + its.slice().sort((a,b)=>a.title.localeCompare(b.title)).map(i => '<option value="' + i.id + '">' + esc(i.title) + '</option>').join('') + '</optgroup>';
 }).join('');
