@@ -56,8 +56,8 @@ conversation without getting lost.
 - **When** the page renders
 - **Then** the matching nav item is marked as current (e.g., `aria-current="page"`) and visually
   distinguished, so I can tell where I am.
-- **Status:** not yet implemented in `Base.astro` (no `aria-current` on nav links as of 2026-06-24)
-  — tracked as a delivery gap.
+- **Status:** ✅ implemented (rs-site PR #23, 2026-06-24) — `aria-current="page"` on the matching
+  header + mobile nav item via path-prefix match, with a non-color-only visual cue (font-weight).
 
 **Scenario (gt-03-us-primary-nav-AC3): CTA reachable from every page**
 - **Given** any page on any viewport
@@ -108,6 +108,6 @@ conversation without getting lost.
   (→ `/blog`); capability pages are reached through the **Capabilities mega menu** rather than
   individual top-level items. Earlier draft labels ("How we work · AI · Work · About" + a
   "Start a Discovery Sprint" CTA) are superseded.
-- **Open delivery gap:** AC2 (current-section `aria-current`) is not yet implemented in `Base.astro`.
+- AC2 (current-section `aria-current`) implemented in `Base.astro` (rs-site PR #23, 2026-06-24).
 - Mobile-menu pattern (disclosure panel vs. full-screen overlay) and exact focus behavior →
   Product Architect + design.
