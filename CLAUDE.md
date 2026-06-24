@@ -39,6 +39,16 @@ Flow: **Knowledge → Ground Truth → Specs → Agents → Software.**
 - New capability? Copy [`_schema/templates/capability-spec.template.md`](ground-truth/_schema/templates/capability-spec.template.md).
 - Material decision? Add a numbered entry to `07-decision-log/`.
 
+## Branch & PR workflow (mandatory — every change, every agent)
+
+Never commit directly to `main`. Every change here — Ground Truth edits, Explorer app code, tools,
+decisions — follows the same loop as the code repo: **branch → PR → adversarial self-review →
+analyze & fix → merge (squash) → sync local `main` (delete the branch).** Review your own PR like a
+skeptical reviewer trying to reject it (GT drift, `confidence: low` shipped as truth, broken
+metadata/schema, regressions); post the critique, resolve every point, then merge. After merge,
+fast-forward local `main` so it never drifts from remote. Canonical loop: `rs-site/CLAUDE.md` + `rs-ip/pr/`.
+Tiny doc/typo fixes may skip the branch only when explicitly agreed.
+
 ## Engineering conventions
 
 The authoritative engineering context lives in
