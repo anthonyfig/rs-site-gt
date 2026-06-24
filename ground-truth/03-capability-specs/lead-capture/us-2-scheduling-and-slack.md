@@ -8,7 +8,7 @@ status: draft
 delivery_status: backlog
 confidence: medium
 sources: ["Capability gt-03-capability-lead-capture", "gt-05-hubspot (Meetings + Slack)"]
-updated: 2026-06-22
+updated: 2026-06-24
 last_validated: "pending"
 validated_by: "pending"
 applies_to: ["marketing-site"]
@@ -45,6 +45,12 @@ notified instantly.
 | AC1 | `EV-LEAD-HAPPY` | meeting + invite created |
 | AC2 | `EV-LEAD-HAPPY` | Slack message on submit/booking |
 | AC3 | `EV-LEAD-RESILIENCE` | Slack down → lead still created |
+
+## Interim (Decision 0018)
+- The contact form captures a **preferred** day/time/timezone (`Meet-Selected-Day`, `Meet-Selected-Hour`,
+  `Time-Zone`) submitted with the lead; a principal engineer confirms by email. This is **not** live
+  booking — AC1 (real HubSpot Meetings slot + calendar invite) remains **backlog** and currently lives on
+  `/contact-hubspot-scheduler`.
 
 ## Notes / human gates
 - Target Slack channel + HubSpot Meetings link → Sales (`05/hubspot` open questions).
