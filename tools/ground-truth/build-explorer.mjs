@@ -528,7 +528,7 @@ function authInit(){
     if(form)form.addEventListener("submit",function(e){e.preventDefault();
       var email=(($("#authEmail").value)||"").trim(),pass=(($("#authPass")&&$("#authPass").value)||""),msg=$("#authMsg");
       if(!emailOK(email)){if(msg)msg.textContent="Use your @"+cfg.allowedDomain+" email.";return;}
-      if(pass){if(msg)msg.textContent="Signing in…";sb.auth.signInWithPassword({email:email,password:pass}).then(function(res){if(res&&res.error&&msg)msg.textContent=res.error.message;});}
+      if(pass){if(msg)msg.textContent="Signing in…";sb.auth.signInWithPassword({email:email,password:pass}).then(function(res){if(res&&res.error&&msg)msg.textContent=res.error.message;},function(err){if(msg)msg.textContent=(err&&err.message)||"Sign-in failed.";});}
       else sendMagic(email,msg);
     });
     var mag=$("#authMagic");
@@ -633,6 +633,7 @@ h1.t{font-size:27px;margin:.25em 0 .35em;letter-spacing:-.01em}.lead{color:var(-
 @media (max-width:520px){.askpanel{right:8px;bottom:8px;width:calc(100vw - 16px)}}
 /* ---- Auth gate ---- */
 .authgate{position:fixed;inset:0;background:var(--ink);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.authgate[hidden],.askpanel[hidden]{display:none!important}
 .authcard{max-width:380px;width:100%;background:var(--ink2);border:1px solid var(--line);border-radius:16px;padding:28px;text-align:center}.authcard svg{height:20px;width:auto;margin-bottom:14px}.authcard svg path{fill:var(--paper)}
 .auth-t{font-size:19px;margin:0 0 6px}.auth-s{color:var(--dim);font-size:13.5px;margin:0 0 16px}
 .authinput{width:100%;background:var(--ink3);border:1px solid var(--line);color:var(--paper);border-radius:9px;padding:10px 12px;font-size:14px;margin-bottom:10px;font-family:inherit}.auth-msg{font-size:13px;color:var(--dim);margin-top:12px;min-height:18px}
