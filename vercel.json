@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "node tools/ground-truth/build-explorer.mjs",
+  "outputDirectory": "public",
+  "functions": {
+    "api/ask.mjs": { "maxDuration": 30 }
+  }
+}

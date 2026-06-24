@@ -63,7 +63,7 @@ const items = raw.map(it => {
     type: it.meta.type || 'doc', status: it.meta.status || '', confidence: it.meta.confidence || '',
     owner: it.meta.owner || '', last_validated: it.meta.last_validated || '', validated_by: it.meta.validated_by || '',
     surfaces: it.meta.applies_to || [], sources: it.meta.sources || [], related: (it.meta.related || []).filter(r => titleById[r]),
-    tags: it.meta.tags || [], tier: it.meta.tier || '', capability: it.meta.capability || '', deliveryStatus: it.meta.delivery_status || '', bodyHtml, searchText,
+    tags: it.meta.tags || [], tier: it.meta.tier || '', capability: it.meta.capability || '', deliveryStatus: it.meta.delivery_status || '', updated: it.meta.updated || '', body: it.body, bodyHtml, searchText,
   };
 });
 const backlinks = {};
@@ -130,7 +130,7 @@ const guided = [
   ['Relationship map','map','Trace how one item connects'],
   ['Understand the strategy','gt-01-goals-and-scope','Why we’re doing this'],
   ['What we’re building','gt-03-index','The website’s capabilities'],
-  ['Decisions & why','gt-07-index','What we decided'],
+  ['Decisions & why','decisions','Track decisions & open questions'],
 ].map(([t,h,s]) => '<a class="gcard" href="#' + h + '"><div class="gt-t">' + t + '</div><div class="gt-s">' + s + '</div></a>').join('');
 const legend = Object.entries(STATUS_MEAN).map(([k,v]) => '<div class="leg"><span class="dot" style="background:' + (STATUS_COLOR[k]||'#888') + '"></span><b>' + k + '</b> — ' + v + '</div>').join('');
 const decisions = items.filter(i => i.type === 'decision' && i.id !== 'gt-07-index')
@@ -170,10 +170,43 @@ const mapView = '<section id="view-map" class="view"><div class="ey">Relationshi
   + '<div id="mapStage"><svg id="mapEdges" viewBox="0 0 860 460" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg></div>'
   + '<p class="pill" style="margin-top:8px">Tip: click the centered item to open its full page.</p></section>';
 
+// ---- Decisions workspace + chat bubble + auth gate (markup; data rendered client-side) ----
+const decisionsView = '<section id="view-decisions" class="view"><div class="ey">Decisions &amp; open questions</div><h1 class="t">Decisions &amp; open questions</h1>'
+  + '<p class="lead">Every material decision in one tracked board — what we decided, who owns it, when, and what it affects. Capture a new one with <b>Propose a decision</b>; it produces a commit-ready file for the log, so Git stays the source of truth.</p>'
+  + '<div class="dtoolbar"><button id="decNew" class="btnprimary">+ Propose a decision</button><span id="decCount" class="pill"></span></div>'
+  + '<div id="decCompose" class="compose" hidden></div>'
+  + '<div id="decBoard"></div>'
+  + '<h2>Open questions &amp; human gates</h2><div id="decOpen"></div></section>';
+const chatUI = '<button id="askFab" class="askfab" aria-label="Ask the Ground Truth">✦ Ask</button>'
+  + '<section id="askPanel" class="askpanel" hidden aria-label="Ask the Ground Truth">'
+  + '<header class="askhead"><span class="askh-t">Ask the Ground Truth</span><span id="askMode" class="askh-mode"></span><button id="askClose" class="askx" aria-label="Close">✕</button></header>'
+  + '<div id="askLog" class="asklog" role="log" aria-live="polite"></div>'
+  + '<form id="askForm" class="askform"><input id="askInput" class="askinput" placeholder="Ask about the model…" autocomplete="off" aria-label="Your question"><button class="asksend" type="submit">Send</button></form></section>';
+const authUI = '<div id="authGate" class="authgate" hidden><div class="authcard">' + (LOGO || '')
+  + '<h2 class="auth-t">Internal sign-in</h2><p class="auth-s">The Ground Truth Explorer is internal-only. Enter your Rootstrap email to get a sign-in link.</p>'
+  + '<form id="authForm"><input id="authEmail" type="email" class="authinput" placeholder="you@rootstrap.com" required aria-label="Email"><button class="btnprimary" type="submit">Send sign-in link</button></form>'
+  + '<div id="authMsg" class="auth-msg" aria-live="polite"></div></div></div>';
+
+// ---- retrieval index (rebuilt from Git on every build; Decision 0010) for the /api/ask backend ----
+const indexItems = items.filter(i => i.isArtifact).map(i => ({
+  id: i.id, title: i.title, part: i.part, type: i.type, status: i.status,
+  delivery_status: i.deliveryStatus, relPath: i.relPath, tags: i.tags, body: i.body,
+}));
+fs.mkdirSync(path.join(REPO_ROOT, 'api'), { recursive: true });
+fs.writeFileSync(path.join(REPO_ROOT, 'api', '_gt-index.json'), JSON.stringify({ generated: new Date().toISOString(), count: indexItems.length, items: indexItems }));
+
+// ---- explorer runtime config (PUBLIC values only — secrets stay server-side in /api) ----
+const CFG = {
+  supabaseUrl: process.env.SUPABASE_URL || '',
+  supabaseAnonKey: process.env.SUPABASE_ANON_KEY || '',
+  apiBase: process.env.EXPLORER_API_BASE || '',
+  allowedDomain: (process.env.ALLOWED_EMAIL_DOMAIN || '').replace(/^@/, ''),
+};
+
 // ---- data for JS ----
 const D = {
-  items: items.map(i => ({ id: i.id, title: i.title, part: i.part, type: i.type, status: i.status, delivery_status: i.deliveryStatus, confidence: i.confidence, owner: i.owner, last_validated: i.last_validated, isArtifact: i.isArtifact, surfaces: i.surfaces, related: i.related, backlinks: backlinks[i.id] || [], capability: i.capability, searchText: i.searchText })),
-  sections: SECTIONS, colors: COLORS, statusColor: STATUS_COLOR, surfaces, stats: st, health,
+  items: items.map(i => ({ id: i.id, title: i.title, part: i.part, type: i.type, status: i.status, delivery_status: i.deliveryStatus, confidence: i.confidence, owner: i.owner, last_validated: i.last_validated, updated: i.updated, isArtifact: i.isArtifact, surfaces: i.surfaces, related: i.related, backlinks: backlinks[i.id] || [], capability: i.capability, searchText: i.searchText })),
+  sections: SECTIONS, colors: COLORS, statusColor: STATUS_COLOR, surfaces, stats: st, health, cfg: CFG,
   generated: new Date().toISOString().slice(0, 16).replace('T', ' '),
 };
 const json = JSON.stringify(D).replace(/</g, '\\u003c');
@@ -197,7 +230,7 @@ function match(i){
 }
 function renderNav(){
   var nav=$("#nav");nav.innerHTML="";
-  [["overview","▣ Overview"],["table","▤ Browse (table)"],["health","◍ Health & gaps"],["map","✦ Relationship map"]].forEach(function(x){var a=ce("a","navtop");a.href="#"+x[0];a.textContent=x[1];nav.appendChild(a);});
+  [["overview","▣ Overview"],["table","▤ Browse (table)"],["health","◍ Health & gaps"],["decisions","⚖ Decisions"],["map","✦ Relationship map"]].forEach(function(x){var a=ce("a","navtop");a.href="#"+x[0];a.textContent=x[1];nav.appendChild(a);});
   function byTitle(a,b){return a.title.localeCompare(b.title);}
   function link(i,child){
     var a=ce("a",child?"child":null);a.href="#"+encodeURIComponent(i.id);
@@ -312,6 +345,7 @@ function show(id){
   if(!id||id==="overview"){actExc("view-overview");bc.innerHTML="Overview";}
   else if(id==="table"){actExc("view-table");bc.innerHTML='<a href="#overview">Overview</a> › Browse';renderTable();}
   else if(id==="health"){actExc("view-health");bc.innerHTML='<a href="#overview">Overview</a> › Health & gaps';renderHealth();}
+  else if(id==="decisions"){actExc("view-decisions");bc.innerHTML='<a href="#overview">Overview</a> › Decisions & open questions';renderDecisions();}
   else if(id==="map"){actExc("view-map");bc.innerHTML='<a href="#overview">Overview</a> › Relationship map';buildMap(mapCenter);}
   else{var el=document.getElementById("art-"+id);if(el){[].forEach.call(document.querySelectorAll(".art,.view"),function(s){s.classList.remove("active");});el.classList.add("active");var it=byId[id];var sec=it?areaLabel(it.part):"";bc.innerHTML='<a href="#overview">Overview</a> › '+sec+' › '+(it?it.title:id);}else{actExc("view-overview");id="overview";}}
   var m=$(".main");if(m)m.scrollTop=0;hi();
@@ -324,8 +358,181 @@ var mapSel=$("#mapPick");if(mapSel)mapSel.addEventListener("change",function(){i
 var qel=$("#q");if(qel)qel.addEventListener("input",function(e){facet.q=e.target.value.toLowerCase();renderNav();renderTable();});
 window.addEventListener("resize",function(){if($("#view-map").classList.contains("active"))buildMap(mapCenter);});
 window.addEventListener("hashchange",route);
+// ---------- Decisions workspace ----------
+function decNum(id){var m=String(id||"").match(/(\\d{3,4})/);return m?m[1]:"";}
+function citeLabel(id){var n=decNum(id);return n?n:String(id||"").replace(/^gt-\\d+-/,"");}
+function decisionsList(){
+  return D.items.filter(function(i){return i.type==="decision"&&i.id!=="gt-07-index";})
+    .map(function(i){return {id:i.id,num:decNum(i.id),title:i.title,status:i.status,owner:i.owner,date:i.updated||i.last_validated||"",affects:i.surfaces||[]};})
+    .sort(function(a,b){return (b.num||"").localeCompare(a.num||"");});
+}
+function renderDecisions(){
+  var board=$("#decBoard");if(!board)return;
+  var rows=decisionsList();
+  var cc=$("#decCount");if(cc)cc.textContent=rows.length+" decisions";
+  var h='<table class="dtable"><thead><tr><th>#</th><th>Decision</th><th>Status</th><th>Owner</th><th>Date</th><th>Affects</th></tr></thead><tbody>';
+  rows.forEach(function(d){
+    var aff=(d.affects||[]).map(function(s){return '<span class="chip">'+s+'</span>';}).join("");
+    h+='<tr class="drow" data-id="'+d.id+'"><td class="dnum">'+(d.num||"—")+'</td><td>'+d.title+'</td><td><span class="badge b-'+d.status+'">'+(d.status||"—")+'</span></td><td class="c-dim">'+(d.owner||"—")+'</td><td class="c-dim">'+(d.date||"—")+'</td><td>'+(aff||'<span class="c-dim">—</span>')+'</td></tr>';
+  });
+  h+='</tbody></table>';board.innerHTML=h;
+  [].forEach.call(board.querySelectorAll(".drow"),function(tr){tr.addEventListener("click",function(){location.hash="#"+encodeURIComponent(tr.getAttribute("data-id"));});});
+  var open=$("#decOpen");
+  if(open){
+    var pend=rows.filter(function(d){return d.status==="in-review"||d.status==="draft"||d.status==="needs-revalidation";});
+    var oqId=D.health&&D.health.openQuestions;
+    var oh='<div class="hpanel"><h3><span>Open questions (human gate)</span></h3>';
+    if(oqId&&byId[oqId])oh+='<a class="chip" href="#'+encodeURIComponent(oqId)+'">'+(byId[oqId].title||"Open questions")+'</a>';
+    else oh+='<div class="ok">None recorded ✓</div>';
+    oh+='</div>';
+    var ph='<div class="hpanel"><h3><span>Decisions awaiting approval</span><span class="cnt">'+pend.length+'</span></h3>';
+    if(!pend.length)ph+='<div class="ok">All decisions are approved ✓</div>';
+    else{ph+='<div class="hchips">';pend.forEach(function(d){ph+='<a class="chip" href="#'+encodeURIComponent(d.id)+'">'+(d.num?d.num+" · ":"")+d.title+'</a>';});ph+='</div>';}
+    ph+='</div>';open.innerHTML=oh+ph;
+  }
+}
+function nextDecNum(){var mx=0;decisionsList().forEach(function(d){var n=parseInt(d.num,10);if(n>mx)mx=n;});var s=""+(mx+1);while(s.length<4)s="0"+s;return s;}
+function slugify(s){return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,48);}
+function todayISO(){return new Date().toISOString().slice(0,10);}
+function composeOpen(){
+  var box=$("#decCompose");if(!box)return;box.hidden=false;
+  var surfOpts=(D.surfaces||[]).map(function(s){return '<label class="cchk"><input type="checkbox" value="'+s+'">'+s+'</label>';}).join(" ");
+  box.innerHTML='<h3>Propose a decision</h3>'
+    +'<div class="cfield"><label>Title</label><input id="cTitle" placeholder="Short decision title"></div>'
+    +'<div class="crow"><div class="cfield"><label>Owner</label><input id="cOwner" value="Anthony (sponsor)"></div><div class="cfield"><label>Status</label><select id="cStatus"><option value="in-review">in-review</option><option value="draft">draft</option><option value="approved">approved</option></select></div></div>'
+    +'<div class="cfield"><label>Affects</label><div id="cAffects" class="caffects">'+(surfOpts||'<span class="c-dim">no surfaces</span>')+'</div></div>'
+    +'<div class="cfield"><label>Decision</label><textarea id="cDecision" placeholder="What we decided."></textarea></div>'
+    +'<div class="cfield"><label>Why</label><textarea id="cWhy" placeholder="The rationale."></textarea></div>'
+    +'<div class="cfield"><label>Consequences</label><textarea id="cCons" placeholder="What follows from this."></textarea></div>'
+    +'<div class="cfield"><label>Sources</label><input id="cSrc" placeholder="e.g. User decision (Jun 2026); refines Decision 0010"></div>'
+    +'<div class="cactions"><button class="btnprimary" id="cGen">Generate file</button><button class="btnlite" id="cCancel">Cancel</button></div>'
+    +'<div id="cOut" class="cout"></div>';
+  $("#cGen").addEventListener("click",composeGen);
+  $("#cCancel").addEventListener("click",function(){box.hidden=true;box.innerHTML="";});
+  var t=$("#cTitle");if(t)t.focus();
+}
+function composeGen(){
+  var t=$("#cTitle"),title=((t&&t.value)||"").trim();if(!title){if(t)t.focus();return;}
+  var num=nextDecNum(),slug=slugify(title)||"decision",owner=(($("#cOwner").value)||"Anthony (sponsor)").trim();
+  var status=$("#cStatus").value,decision=(($("#cDecision").value)||"").trim(),why=(($("#cWhy").value)||"").trim(),cons=(($("#cCons").value)||"").trim();
+  var today=todayISO(),src=(($("#cSrc").value)||"").trim()||("User decision ("+today+")");
+  var affects=[].map.call(document.querySelectorAll("#cAffects input:checked"),function(x){return x.value;});
+  var affList=affects.length?affects.map(function(a){return '"'+a+'"';}).join(", "):'"explorer"';
+  var lv=status==="approved"?today:"pending",vb=status==="approved"?owner:"pending";
+  var lines=[
+    "---",
+    "id: gt-07-"+num+"-"+slug,
+    'title: "'+num+' — '+title.replace(/"/g,"'")+'"',
+    'part: "07-decision-log"',
+    "type: decision",
+    'owner: "'+owner.replace(/"/g,"'")+'"',
+    "status: "+status,
+    "confidence: medium",
+    "sources:",
+    '  - "'+src.replace(/"/g,"'")+'"',
+    "updated: "+today,
+    'last_validated: "'+lv+'"',
+    'validated_by: "'+vb+'"',
+    "applies_to: ["+affList+"]",
+    "related: []",
+    'tags: ["adr", "decision"]',
+    "---","",
+    "# "+num+" — "+title,"",
+    "**Status:** "+status+" · **Date:** "+today+" · **Owner:** "+owner,"",
+    "## Decision",decision||"_TODO_","",
+    "## Why",why||"_TODO_","",
+    "## Consequences",cons||"_TODO_","",
+    "## Open questions / human gates","- _none yet_",""
+  ];
+  var md=lines.join("\\n");
+  var file="ground-truth/07-decision-log/"+num+"-"+slug+".md";
+  var out=$("#cOut");
+  out.innerHTML='<div class="cfile">'+file+'</div><pre id="cMd"></pre><div class="cactions"><button class="btnlite" id="cCopy">Copy markdown</button></div><p class="pill">Review, then commit this file to ground-truth/07-decision-log/ — the next build adds it to the model and the checker validates it.</p>';
+  $("#cMd").textContent=md;
+  $("#cCopy").addEventListener("click",function(){try{navigator.clipboard.writeText(md);this.textContent="Copied ✓";}catch(e){}});
+}
+function decInit(){var b=$("#decNew");if(b)b.addEventListener("click",function(){var box=$("#decCompose");if(box&&!box.hidden){box.hidden=true;box.innerHTML="";}else composeOpen();});}
+
+// ---------- Ask the Ground Truth (chat) ----------
+var askHistory=[],askBusy=false,askToken=null;
+function apiURL(){var b=(D.cfg&&D.cfg.apiBase)||"";return (b?b.replace(/\\/$/,""):"")+"/api/ask";}
+function setMode(label){var m=$("#askMode");if(m)m.textContent=label||"";}
+function addUser(text){var log=$("#askLog");var d=ce("div","askmsg user");d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;}
+function escHtml(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function addBot(text,sources){
+  var log=$("#askLog");var d=ce("div","askmsg bot");d.innerHTML=linkifyCites(text);
+  if(sources&&sources.length){var s=ce("div","asksrc");var html='<div class="k">sources</div>';
+    sources.forEach(function(x){var label=(x.title||x.id);if(label.length>46)label=label.slice(0,46)+"…";html+='<a href="#'+encodeURIComponent(x.id)+'" title="'+escHtml(x.id)+'">'+escHtml(label)+'</a>';});
+    s.innerHTML=html;d.appendChild(s);}
+  log.appendChild(d);log.scrollTop=log.scrollHeight;return d;
+}
+function linkifyCites(text){
+  var safe=String(text==null?"":text).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  safe=safe.replace(/\\[([a-z0-9][a-z0-9\\-]+)\\]/g,function(m,id){return byId[id]?'<a class="askcite" href="#'+encodeURIComponent(id)+'">['+citeLabel(id)+']</a>':m;});
+  return safe.replace(/\\n/g,"<br>");
+}
+function localAnswer(q){
+  var qts=(q.toLowerCase().match(/[a-z0-9\\-]{3,}/g)||[]);
+  var scored=D.items.filter(function(i){return i.isArtifact;}).map(function(i){
+    var s=0,txt=(i.searchText||""),title=i.title.toLowerCase(),id=i.id.toLowerCase();
+    qts.forEach(function(t){if(id.indexOf(t)>=0)s+=4;if(title.indexOf(t)>=0)s+=3;if(txt.indexOf(t)>=0)s+=1;});
+    return {i:i,s:s};
+  }).filter(function(x){return x.s>0;}).sort(function(a,b){return b.s-a.s;}).slice(0,6);
+  if(!scored.length)return {answer:"I couldn't find anything about that in the Ground Truth. Try different terms.",sources:[]};
+  return {answer:"Here are the artifacts in the model most relevant to your question — open any to read it and trace it to its sources:",sources:scored.map(function(x){return {id:x.i.id,title:x.i.title};})};
+}
+function askGreet(){addBot("Ask me anything about the Ground Truth — decisions, capabilities, the stack, the method. I answer from the model and cite the artifacts I use.",null);}
+function askOpen(){var p=$("#askPanel"),f=$("#askFab");if(!p)return;p.hidden=false;if(f)f.hidden=true;if(!$("#askLog").childNodes.length)askGreet();var i=$("#askInput");if(i)i.focus();}
+function askClose(){var p=$("#askPanel"),f=$("#askFab");if(p)p.hidden=true;if(f)f.hidden=false;}
+function askSend(q){
+  if(askBusy||!q)return;askBusy=true;addUser(q);var input=$("#askInput");if(input)input.value="";
+  var typing=ce("div","asktyping");typing.textContent="…thinking";$("#askLog").appendChild(typing);$("#askLog").scrollTop=$("#askLog").scrollHeight;
+  function clearTyping(){if(typing.parentNode)typing.parentNode.removeChild(typing);}
+  if(location.protocol==="file:"){clearTyping();var r=localAnswer(q);setMode("retrieval mode");addBot(r.answer,r.sources);askBusy=false;return;}
+  var headers={"content-type":"application/json"};if(askToken)headers["authorization"]="Bearer "+askToken;
+  fetch(apiURL(),{method:"POST",headers:headers,body:JSON.stringify({question:q,history:askHistory.slice(-8)})})
+    .then(function(res){return res.json().then(function(j){return {ok:res.ok,status:res.status,j:j};},function(){return {ok:res.ok,status:res.status,j:{}};});})
+    .then(function(o){
+      clearTyping();var j=o.j||{};
+      if(!o.ok){
+        if(o.status===401||o.status===403){setMode("");addBot(j.error||"Sign in to use Ask — the Explorer is internal-only.",null);askBusy=false;return;}
+        var lf=localAnswer(q);setMode("retrieval mode");addBot((j.error||"The assistant is unavailable.")+" Showing the most relevant artifacts instead:",lf.sources);askBusy=false;return;
+      }
+      if(j.answer){setMode(j.mode==="answer"?"":"retrieval mode");addBot(j.answer,j.sources);askHistory.push({role:"user",content:q});askHistory.push({role:"assistant",content:j.answer});}
+      else{setMode("retrieval mode");addBot(j.mode==="retrieval-only"?"The live assistant isn't configured yet, but here are the artifacts most relevant to your question:":"Here's what I found:",j.sources||[]);}
+      askBusy=false;
+    })
+    .catch(function(){clearTyping();var lf=localAnswer(q);setMode("retrieval mode");addBot("I can't reach the live assistant from here, but here are the most relevant artifacts:",lf.sources);askBusy=false;});
+}
+function askInit(){
+  var fab=$("#askFab");if(fab)fab.addEventListener("click",askOpen);
+  var x=$("#askClose");if(x)x.addEventListener("click",askClose);
+  var f=$("#askForm");if(f)f.addEventListener("submit",function(e){e.preventDefault();var i=$("#askInput");askSend(((i&&i.value)||"").trim());});
+  if(location.protocol==="file:")setMode("retrieval mode");
+}
+
+// ---------- internal-only auth gate (Supabase, when configured) ----------
+function authInit(){
+  var cfg=D.cfg||{},gate=$("#authGate");
+  if(!cfg.supabaseUrl||!cfg.supabaseAnonKey||location.protocol==="file:"){if(gate)gate.hidden=true;return;}
+  if(gate)gate.hidden=false;
+  import("https://esm.sh/@supabase/supabase-js@2").then(function(m){
+    var sb=m.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);
+    function apply(session){if(session&&session.access_token){askToken=session.access_token;if(gate)gate.hidden=true;}else{askToken=null;if(gate)gate.hidden=false;}}
+    sb.auth.getSession().then(function(r){apply(r&&r.data&&r.data.session);});
+    sb.auth.onAuthStateChange(function(_e,session){apply(session);});
+    var form=$("#authForm");
+    if(form)form.addEventListener("submit",function(e){e.preventDefault();
+      var email=(($("#authEmail").value)||"").trim(),msg=$("#authMsg");
+      if(cfg.allowedDomain&&email.toLowerCase().indexOf("@"+cfg.allowedDomain.toLowerCase())<0){if(msg)msg.textContent="Use your @"+cfg.allowedDomain+" email.";return;}
+      if(msg)msg.textContent="Sending…";
+      sb.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.href}}).then(function(res){if(msg)msg.textContent=(res&&res.error)?("Couldn't send: "+res.error.message):"Check your email for a sign-in link.";});
+    });
+  }).catch(function(){var msg=$("#authMsg");if(msg)msg.textContent="Couldn't load the sign-in library.";});
+}
+
 var gen=$("#gen");if(gen)gen.textContent="built "+D.generated;
-buildFacets();renderNav();route();
+buildFacets();renderNav();route();decInit();askInit();authInit();
 })();`;
 
 const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -391,8 +598,42 @@ h1.t{font-size:27px;margin:.25em 0 .35em;letter-spacing:-.01em}.lead{color:var(-
 .sw{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid var(--line);vertical-align:middle;margin-right:5px}
 .palette{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin:10px 0}.pal{border:1px solid var(--line);border-radius:8px;overflow:hidden}.pal .c{height:44px}.pal .l{font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px;color:var(--dim)}
 .assetgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin:10px 0}.assetcard{background:#6b7280;border:1px solid var(--line);border-radius:10px;padding:16px;text-align:center}.assetcard svg{max-width:100%;height:34px;width:auto}.assetcard .nm{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--paper);margin-top:8px;word-break:break-all}
+/* ---- Decisions workspace ---- */
+.dtoolbar{display:flex;align-items:center;gap:12px;margin:14px 0}
+.btnprimary{background:var(--live);color:var(--ink);border:none;border-radius:8px;padding:8px 13px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit}.btnprimary:hover{filter:brightness(1.06)}
+.dtable{width:100%;border-collapse:collapse;font-size:13px;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.dtable th{background:var(--ink2);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+.dtable td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}.dtable tr:last-child td{border-bottom:none}
+.dtable tr.drow{cursor:pointer}.dtable tr.drow:hover td{background:var(--ink3)}.dnum{font-family:'JetBrains Mono',monospace;color:var(--dim)}
+.compose{background:var(--ink2);border:1px solid var(--line);border-radius:12px;padding:16px;margin:14px 0}.compose h3{margin:0 0 10px;font-size:15px;font-family:'Poppins',sans-serif}
+.cfield{margin-bottom:10px}.cfield label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:4px}
+.cfield input,.cfield textarea,.cfield select{width:100%;background:var(--ink3);border:1px solid var(--line);color:var(--paper);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit}.cfield textarea{min-height:62px;resize:vertical}
+.crow{display:grid;grid-template-columns:1fr 1fr;gap:10px}.caffects{display:flex;flex-wrap:wrap;gap:6px}
+.cchk{font-size:12px;color:var(--dim);background:var(--ink3);border:1px solid var(--line);border-radius:7px;padding:4px 8px;cursor:pointer}.cchk input{margin-right:5px;vertical-align:middle}
+.cactions{display:flex;gap:8px;margin-top:6px}.cout{margin-top:12px}.cout pre{background:var(--ink);border:1px solid var(--line);border-radius:8px;padding:12px;overflow:auto;font-size:12px;max-height:300px;white-space:pre-wrap}.cfile{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--good);margin-bottom:6px}
+/* ---- Ask chat ---- */
+.askfab{position:fixed;right:22px;bottom:22px;height:50px;width:auto;border-radius:25px;background:var(--live);border:none;color:var(--ink);font-weight:600;font-size:14px;padding:0 20px;cursor:pointer;z-index:30;box-shadow:0 4px 18px rgba(0,0,0,.4);font-family:inherit}.askfab:hover{filter:brightness(1.06)}
+.askpanel{position:fixed;right:22px;bottom:22px;width:382px;max-width:calc(100vw - 24px);height:560px;max-height:calc(100vh - 84px);background:var(--ink2);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;overflow:hidden;z-index:31;box-shadow:0 12px 44px rgba(0,0,0,.5)}
+.askhead{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--line)}.askh-t{font-family:'Poppins',sans-serif;font-weight:600;font-size:14px}
+.askh-mode{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--live);border:1px solid #5c4a16;background:#2c2614;border-radius:20px;padding:2px 8px}.askx{margin-left:auto;background:none;border:none;color:var(--dim);font-size:15px;cursor:pointer}
+.asklog{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.askmsg{font-size:13.5px;line-height:1.5;padding:8px 11px;border-radius:11px;max-width:90%;word-wrap:break-word}
+.askmsg.user{align-self:flex-end;background:var(--live2);color:#0b1437;border-bottom-right-radius:3px}.askmsg.bot{align-self:flex-start;background:var(--ink3);color:var(--paper);border-bottom-left-radius:3px}
+.askmsg.bot a{color:var(--live)}.askcite{color:var(--live);cursor:pointer;border-bottom:1px dotted var(--live)}
+.asksrc{margin-top:7px;border-top:1px solid var(--line);padding-top:6px}.asksrc .k{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.asksrc a{display:inline-block;background:var(--ink2);border:1px solid var(--line);color:var(--live);font-size:11px;padding:2px 7px;border-radius:6px;margin:2px 5px 0 0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
+.asktyping{align-self:flex-start;color:var(--dim);font-size:12px;font-family:'JetBrains Mono',monospace}
+.askform{display:flex;gap:7px;padding:10px;border-top:1px solid var(--line)}.askinput{flex:1;background:var(--ink3);border:1px solid var(--line);color:var(--paper);border-radius:9px;padding:9px 11px;font-size:13px;font-family:inherit}
+.asksend{background:var(--live);color:var(--ink);border:none;border-radius:9px;padding:0 14px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit}.asksend:disabled{opacity:.5;cursor:default}
+@media (max-width:520px){.askpanel{right:8px;bottom:8px;width:calc(100vw - 16px)}}
+/* ---- Auth gate ---- */
+.authgate{position:fixed;inset:0;background:var(--ink);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.authcard{max-width:380px;width:100%;background:var(--ink2);border:1px solid var(--line);border-radius:16px;padding:28px;text-align:center}.authcard svg{height:20px;width:auto;margin-bottom:14px}.authcard svg path{fill:var(--paper)}
+.auth-t{font-size:19px;margin:0 0 6px}.auth-s{color:var(--dim);font-size:13.5px;margin:0 0 16px}
+.authinput{width:100%;background:var(--ink3);border:1px solid var(--line);color:var(--paper);border-radius:9px;padding:10px 12px;font-size:14px;margin-bottom:10px;font-family:inherit}.auth-msg{font-size:13px;color:var(--dim);margin-top:12px;min-height:18px}
 </style></head><body>
 <div class="top"><div class="b">${LOGO || 'Rootstrap'} <small>GROUND TRUTH · v0.3</small></div><input id="q" placeholder="Search the model…"><div id="gen" class="pill"></div></div>
+${authUI}
 <div class="app">
   <aside class="side"><div id="facets"></div><nav class="nav" id="nav"></nav></aside>
   <main class="main"><div class="crumb" id="crumb">Overview</div>
@@ -400,9 +641,11 @@ h1.t{font-size:27px;margin:.25em 0 .35em;letter-spacing:-.01em}.lead{color:var(-
     ${tableView}
     ${healthView}
     ${mapView}
+    ${decisionsView}
     ${articles}
   </main>
 </div>
+${chatUI}
 <noscript><style>.art,.view{display:block!important}.side,.crumb{display:none}</style></noscript>
 <script>window.__GT__=${json};</script>
 <script>${SCRIPT}</script>
@@ -410,4 +653,8 @@ h1.t{font-size:27px;margin:.25em 0 .35em;letter-spacing:-.01em}.lead{color:var(-
 
 const out = path.join(REPO_ROOT, 'ground-truth-explorer.html');
 fs.writeFileSync(out, html);
-console.log(`Wrote ${path.relative(REPO_ROOT, out)} (${(html.length/1024).toFixed(0)} KB, ${items.length} items)`);
+// Vercel static output (served as the site root); keeps raw GT files out of the public dir.
+const pubDir = path.join(REPO_ROOT, 'public');
+fs.mkdirSync(pubDir, { recursive: true });
+fs.writeFileSync(path.join(pubDir, 'index.html'), html);
+console.log(`Wrote ${path.relative(REPO_ROOT, out)} + public/index.html + api/_gt-index.json (${(html.length/1024).toFixed(0)} KB, ${items.length} items)`);
