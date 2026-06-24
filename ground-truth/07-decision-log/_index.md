@@ -41,3 +41,4 @@ the next number and never get rewritten — they get superseded.
 | [0016](0016-explorer-edits-ground-truth-vercel.md) | **Explorer edits the Ground Truth** (tone, ICP) behind a human gate; **deploys to Vercel** | Approved | 2026-06-23 |
 | [0017](0017-explorer-chat-backend-supabase-vercel.md) | **Explorer chat backend**: Vercel function + Anthropic API + Supabase auth; pgvector deferred | In review | 2026-06-24 |
 | [0018](0018-contact-form-hubspot-collected-forms.md) | **Contact form via HubSpot Collected Forms** (portal 3965030, field-name parity) — match Webflow, no GUID/backend | Approved | 2026-06-24 |
+| [0019](0019-explorer-decide-writeback.md) | **Explorer decides**: Approve/Reject commits the outcome back to the decision file via `/api/decide` (Claude recommendation, human gate) | In review | 2026-06-24 |
