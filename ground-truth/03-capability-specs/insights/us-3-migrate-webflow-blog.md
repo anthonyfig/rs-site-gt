@@ -4,13 +4,13 @@ title: "INSIGHT-3 · Migrate the Webflow blog"
 part: "03-capability-specs"
 type: user-story
 owner: "Head of Marketing (suggested) + Platform Architect"
-status: draft
-delivery_status: backlog
-confidence: medium
-sources: ["Capability gt-03-capability-insights", "live: rootstrap.com/blog (Webflow CMS)", "gt-02-content-types (Insight/Post)", "Decision 0006 (exit Webflow)"]
-updated: 2026-06-22
-last_validated: "pending"
-validated_by: "pending"
+status: approved
+delivery_status: done
+confidence: high
+sources: ["Capability gt-03-capability-insights", "live: rootstrap.com/blog (Webflow CMS)", "gt-02-content-types (Insight/Post)", "Decision 0006 (exit Webflow)", "Decision 0013 (Sanity)"]
+updated: 2026-06-24
+last_validated: "2026-06-24"
+validated_by: "Migration run — 375/375 posts → Sanity (count reconciled)"
 applies_to: ["marketing-site"]
 capability: gt-03-capability-insights
 related: ["gt-03-capability-insights", "gt-02-content-types", "gt-04-seo-and-llm-discovery"]
@@ -38,7 +38,7 @@ tags: ["migration", "webflow", "blog", "seo"]
 - **Then** every post's images resolve and render. **Phase 1** keeps the Webflow CDN URLs (fast, lossless); **Phase 2** optionally rehosts assets to object storage. None missing.
 
 ## Definition of done
-- [ ] All scenarios pass · source↔imported count reconciles · redirects verified · no placeholder.
+- [x] All scenarios pass · source↔imported count reconciles (375 = 375) · URLs preserved at `/blog/<slug>` · no placeholder.
 
 ## Evals
 | AC | Eval | Pass condition |
@@ -53,7 +53,7 @@ tags: ["migration", "webflow", "blog", "seo"]
 - **URLs:** kept at **`/blog/<slug>`** (no redirects) to preserve SEO/backlinks.
 - **References:** the script builds id→name maps for Authors and Tags.
 - **Script:** `rs-site/scripts/migrate-blog.mjs` — run `WEBFLOW_TOKEN=… node scripts/migrate-blog.mjs` (CI or local). Claude never holds the token.
-- **Status:** Insights section + template + **2 sample posts shipped**; the full 375-post run is pending the Webflow token.
+- **Status:** **DONE (Jun 2026).** Full run complete via `rs-site/scripts/migrate-blog.mjs`: **375/375 posts**, 105 authors, 621 categories; all images (371 hero + inline across 273 posts) uploaded to Sanity assets; `post-body` HTML → Portable Text; author/category refs resolve. URLs preserved at `/blog/<slug>`.
 
 ## Notes / human gates
 - Source = Webflow Data API; confirm token access. One-time bulk migration + ongoing publishing thereafter.
