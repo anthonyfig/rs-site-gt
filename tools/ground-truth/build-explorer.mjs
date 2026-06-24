@@ -189,6 +189,11 @@ const authUI = '<div id="authGate" class="authgate" hidden><div class="authcard"
   + '<form id="authForm"><input id="authEmail" type="email" class="authinput" placeholder="you@rootstrap.com" required aria-label="Email" autocomplete="username"><input id="authPass" type="password" class="authinput" placeholder="Password" aria-label="Password" autocomplete="current-password"><button class="btnprimary" type="submit">Sign in</button></form>'
   + '<button id="authMagic" class="btnlite" type="button" style="margin-top:8px">Email me a sign-in link instead</button>'
   + '<div id="authMsg" class="auth-msg" aria-live="polite"></div></div></div>';
+const ingestView = '<section id="view-ingest" class="view"><div class="ey">Ingest · proposed placement + human gate</div><h1 class="t">Ingest a document</h1>'
+  + '<p class="lead">Paste or upload a text document; an agent proposes where it belongs in the model and drafts a schema-valid artifact. <b>Nothing is written</b> until you review and confirm — then it commits as a new <code>draft</code> for validation. (Binary/media ingest is not yet wired.)</p>'
+  + '<div class="cfield"><label>Document</label><textarea id="ingText" placeholder="Paste document text here…" style="min-height:160px"></textarea></div>'
+  + '<div class="dtoolbar"><label class="btnlite" style="cursor:pointer">Upload .md/.txt<input id="ingFile" type="file" accept=".md,.markdown,.txt,.json,text/plain,text/markdown" hidden></label><span id="ingName" class="pill"></span><button id="ingPropose" class="btnprimary">Propose placement</button></div>'
+  + '<div id="ingResult"></div></section>';
 
 // ---- retrieval index (rebuilt from Git on every build; Decision 0010) for the /api/ask backend ----
 const indexItems = items.filter(i => i.isArtifact).map(i => ({
@@ -233,7 +238,7 @@ function match(i){
 }
 function renderNav(){
   var nav=$("#nav");nav.innerHTML="";
-  [["overview","▣ Overview"],["table","▤ Browse (table)"],["health","◍ Health & gaps"],["decisions","⚖ Decisions"],["map","✦ Relationship map"]].forEach(function(x){var a=ce("a","navtop");a.href="#"+x[0];a.textContent=x[1];if(x[0]==="decisions"){var n=pendingBadgeCount();if(n>0){var b=ce("span","navbadge");b.textContent=n;a.appendChild(b);}}nav.appendChild(a);});
+  [["overview","▣ Overview"],["table","▤ Browse (table)"],["health","◍ Health & gaps"],["decisions","⚖ Decisions"],["ingest","⤓ Ingest"],["map","✦ Relationship map"]].forEach(function(x){var a=ce("a","navtop");a.href="#"+x[0];a.textContent=x[1];if(x[0]==="decisions"){var n=pendingBadgeCount();if(n>0){var b=ce("span","navbadge");b.textContent=n;a.appendChild(b);}}nav.appendChild(a);});
   function byTitle(a,b){return a.title.localeCompare(b.title);}
   function link(i,child){
     var a=ce("a",child?"child":null);a.href="#"+encodeURIComponent(i.id);
@@ -349,6 +354,7 @@ function show(id){
   else if(id==="table"){actExc("view-table");bc.innerHTML='<a href="#overview">Overview</a> › Browse';renderTable();}
   else if(id==="health"){actExc("view-health");bc.innerHTML='<a href="#overview">Overview</a> › Health & gaps';renderHealth();}
   else if(id==="decisions"){actExc("view-decisions");bc.innerHTML='<a href="#overview">Overview</a> › Decisions & open questions';renderDecisions();}
+  else if(id==="ingest"){actExc("view-ingest");bc.innerHTML='<a href="#overview">Overview</a> › Ingest';}
   else if(id==="map"){actExc("view-map");bc.innerHTML='<a href="#overview">Overview</a> › Relationship map';buildMap(mapCenter);}
   else{var el=document.getElementById("art-"+id);if(el){[].forEach.call(document.querySelectorAll(".art,.view"),function(s){s.classList.remove("active");});el.classList.add("active");var it=byId[id];var sec=it?areaLabel(it.part):"";bc.innerHTML='<a href="#overview">Overview</a> › '+sec+' › '+(it?it.title:id);}else{actExc("view-overview");id="overview";}}
   var m=$(".main");if(m)m.scrollTop=0;hi();
@@ -516,6 +522,53 @@ function submitDecision(id,d,outcome){
     .catch(function(){if(out)out.innerHTML='<div class="cfile">Network error recording the decision.</div>';});
 }
 
+// ---------- Ingest a document (propose placement + human gate) ----------
+function ingBase(){var b=((D.cfg&&D.cfg.apiBase)||"");return b?b.replace(/\\/$/,""):"";}
+function ingestInit(){
+  var f=$("#ingFile");if(f&&!f._wired){f._wired=1;f.addEventListener("change",function(){var file=f.files&&f.files[0];if(!file)return;var nm=$("#ingName");if(nm)nm.textContent=file.name;var rd=new FileReader();rd.onload=function(){var ta=$("#ingText");if(ta)ta.value=String(rd.result||"");};rd.readAsText(file);});}
+  var b=$("#ingPropose");if(b&&!b._wired){b._wired=1;b.addEventListener("click",ingestPropose);}
+}
+function ingestBusy(on){var b=$("#ingPropose");if(b){b.disabled=on;b.textContent=on?"Proposing…":"Propose placement";}}
+function ingestPropose(){
+  var text=(($("#ingText")&&$("#ingText").value)||"").trim();if(!text){var t=$("#ingText");if(t)t.focus();return;}
+  if(location.protocol==="file:"){$("#ingResult").innerHTML='<div class="compose">Ingest needs the deployed backend (the agent runs server-side). Open the deployed Explorer to use it.</div>';return;}
+  var filename=(($("#ingName")&&$("#ingName").textContent)||"pasted document");
+  ingestBusy(true);
+  var headers={"content-type":"application/json"};if(askToken)headers["authorization"]="Bearer "+askToken;
+  fetch(ingBase()+"/api/ingest",{method:"POST",headers:headers,body:JSON.stringify({step:"propose",filename:filename,text:text})})
+    .then(function(res){return res.json().then(function(j){return{ok:res.ok,status:res.status,j:j};},function(){return{ok:res.ok,status:res.status,j:{}};});})
+    .then(function(o){ingestBusy(false);var j=o.j||{};if(!o.ok||!j.proposal){$("#ingResult").innerHTML='<div class="compose">'+escHtml(j.error||("Could not propose ("+o.status+")."))+'</div>';return;}renderProposal(j.proposal);})
+    .catch(function(){ingestBusy(false);$("#ingResult").innerHTML='<div class="compose">Network error contacting the ingest agent.</div>';});
+}
+function renderProposal(p){
+  var rel=(p.related||[]).map(function(id){return '<a class="chip" href="#'+encodeURIComponent(id)+'">'+escHtml(citeLabel(id))+'</a>';}).join("");
+  var upd=p.updates_existing?'<div class="pill" style="color:var(--live)">Heads up: this may instead update <a href="#'+encodeURIComponent(p.updates_existing)+'">'+escHtml(p.updates_existing)+'</a> — review before creating a new artifact.</div>':"";
+  $("#ingResult").innerHTML='<div class="compose"><h3>Proposed placement</h3>'
+    +'<div class="decrec"><div class="decrec-b">'+escHtml(p.rationale||"")+'</div></div>'+upd
+    +'<div class="crow"><div class="cfield"><label>Part · type</label><input value="'+escHtml(p.part+" · "+p.type)+'" readonly></div><div class="cfield"><label>Confidence</label><input value="'+escHtml(p.confidence||"")+'" readonly></div></div>'
+    +(rel?'<div class="cfield"><label>Related</label><div>'+rel+'</div></div>':"")
+    +'<div class="cfield"><label>File path</label><input id="ingPath" value="'+escHtml(p.path)+'"></div>'
+    +'<div class="cfield"><label>Artifact (edit before committing)</label><textarea id="ingContent" class="ingcontent">'+escHtml(p.content)+'</textarea></div>'
+    +'<div class="decact"><button class="btnapprove" id="ingCommit" type="button">Confirm &amp; commit</button><button class="btnlite" id="ingReject" type="button">Reject</button></div>'
+    +'<div id="ingCommitOut" class="cout"></div></div>';
+  var rj=$("#ingReject");if(rj)rj.onclick=function(){$("#ingResult").innerHTML="";};
+  var cm=$("#ingCommit");if(cm)cm.onclick=ingestCommit;
+}
+function ingestCommit(){
+  var path=(($("#ingPath")&&$("#ingPath").value)||"").trim();var content=(($("#ingContent")&&$("#ingContent").value)||"");
+  var out=$("#ingCommitOut");if(out)out.innerHTML='<span class="pill">Committing…</span>';
+  var headers={"content-type":"application/json"};if(askToken)headers["authorization"]="Bearer "+askToken;
+  fetch(ingBase()+"/api/ingest",{method:"POST",headers:headers,body:JSON.stringify({step:"commit",path:path,content:content})})
+    .then(function(res){return res.json().then(function(j){return{ok:res.ok,status:res.status,j:j};},function(){return{ok:res.ok,status:res.status,j:{}};});})
+    .then(function(o){var j=o.j||{};
+      if(o.ok&&j.ok){if(out)out.innerHTML='<div class="cfile">Committed '+escHtml(j.path)+(j.commit?' (<a href="'+j.commit+'" target="_blank" rel="noopener">view commit</a>)':"")+'. It enters as a draft after the ~1-min rebuild — then validate it from Browse.</div>';}
+      else if(o.status===409){if(out)out.innerHTML='<div class="cfile">A file already exists at that path — change the path and retry.</div>';}
+      else if(o.status===501||j.fallback){if(out)out.innerHTML='<div class="cfile">Git write-back isn’t configured (add GITHUB_TOKEN).</div>';}
+      else{if(out)out.innerHTML='<div class="cfile">Could not commit: '+escHtml(j.error||("error "+o.status))+'</div>';}
+    })
+    .catch(function(){if(out)out.innerHTML='<div class="cfile">Network error committing.</div>';});
+}
+
 // ---------- Ask the Ground Truth (chat) ----------
 var askHistory=[],askBusy=false,askToken=null,me=null;
 function apiURL(){var b=(D.cfg&&D.cfg.apiBase)||"";return (b?b.replace(/\\/$/,""):"")+"/api/ask";}
@@ -599,7 +652,7 @@ function authInit(){
 }
 
 var gen=$("#gen");if(gen)gen.textContent="built "+D.generated;
-buildFacets();renderNav();route();decInit();askInit();authInit();
+buildFacets();renderNav();route();decInit();askInit();authInit();ingestInit();
 })();`;
 
 const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -714,6 +767,7 @@ h1.t{font-size:27px;margin:.25em 0 .35em;letter-spacing:-.01em}.lead{color:var(-
 .decact{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 .btnapprove,.btnchanges,.btnreject{border:none;border-radius:8px;padding:8px 14px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit}
 .btnapprove{background:var(--good);color:#08130d}.btnchanges{background:var(--ink3);border:1px solid var(--live);color:var(--live)}.btnreject{background:var(--ink3);border:1px solid var(--strike);color:var(--strike)}.decact button:hover{filter:brightness(1.08)}
+.ingcontent{min-height:260px;width:100%;background:var(--ink3);border:1px solid var(--line);color:var(--paper);border-radius:8px;padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:12px}
 </style></head><body>
 <div class="top"><div class="b">${LOGO || 'Rootstrap'} <small>GROUND TRUTH · v0.3</small></div><input id="q" placeholder="Search the model…"><div id="gen" class="pill"></div></div>
 ${authUI}
@@ -725,6 +779,7 @@ ${authUI}
     ${healthView}
     ${mapView}
     ${decisionsView}
+    ${ingestView}
     ${articles}
   </main>
 </div>

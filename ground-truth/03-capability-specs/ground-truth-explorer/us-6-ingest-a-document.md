@@ -5,7 +5,7 @@ part: "03-capability-specs"
 type: user-story
 owner: "Product Architect (suggested) + Anthony"
 status: draft
-delivery_status: backlog
+delivery_status: in-progress
 confidence: medium
 sources:
   - "Capability gt-03-capability-explorer"
@@ -24,6 +24,13 @@ tags: ["explorer", "ingest", "media", "human-gate"]
 
 > **Agent-facing.** This is the executable unit: an agent implements it; an *independent* eval
 > verifies it. It is a communication + acceptance unit, **not** an estimate.
+
+> **Shipped — text-ingest slice (Jun 2026):** the Explorer has an **Ingest** view. Paste or upload a
+> `.md`/`.txt` document → `/api/ingest` (propose) asks the agent to place it, returning a
+> **schema-valid `draft` artifact** (proposed part/type/title, links to real artifacts, rationale) —
+> **nothing is written** (AC1/AC2). On **Confirm**, `/api/ingest` (commit) creates the file in Git via
+> the GitHub Contents API (AC3); **Reject** writes nothing (AC4); the flow is internal-only (AC5).
+> **Deferred:** binary/media → object storage (the open Platform questions below: media types, bucket).
 
 **As an** internal Rootstrap user **I want** to upload a document or media item and have an agent
 propose where it belongs in the Ground Truth **so that** new material lands in the right place — but
