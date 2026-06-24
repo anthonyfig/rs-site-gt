@@ -4,15 +4,15 @@ title: "0017 — Explorer chat backend: Vercel function + Anthropic API + Supaba
 part: "07-decision-log"
 type: decision
 owner: "Anthony (sponsor)"
-status: in-review
+status: approved
 confidence: medium
 sources:
   - "User direction (Jun 2026): add a chat bubble to the Explorer with a real backend; 'go to Supabase or whatever is needed — choose the best architecture'"
   - "Refines Decision 0005 (internal-only Claude chat) and 0016 (Explorer deploys to Vercel)"
   - "Reference impl (Jun 2026): rs-site-gt/api/ask.mjs + tools/ground-truth/retrieval.mjs, verified live (claude-sonnet-4-6)"
 updated: 2026-06-24
-last_validated: "pending"
-validated_by: "pending"
+last_validated: "2026-06-24"
+validated_by: "anthony@rootstrap.com"
 applies_to: ["explorer", "ground-truth"]
 related: ["gt-07-0005-explorer-internal-claude-chat", "gt-07-0016-explorer-edits-ground-truth-vercel", "gt-07-0010-git-system-of-record-db-engine", "gt-07-0002-stack", "gt-03-capability-explorer", "gt-03-us-explorer-ask", "gt-05-anthropic-api"]
 tags: ["adr", "explorer", "chat", "auth", "vercel", "supabase"]
@@ -68,3 +68,8 @@ artifacts from a **Git-rebuilt index**, (3) answers via the **Anthropic (Claude)
   0016 / the Explorer capability) → Anthony + Platform.
 - The **trigger** to adopt pgvector (corpus size / answer quality) → Product + Platform.
 - Whether to also persist a lightweight **ask log** (questions, cited artifacts) for evals → Product.
+
+## Decision outcome (2026-06-24)
+- **Outcome:** Approved
+- **By:** anthony@rootstrap.com
+- **Rationale:** —
