@@ -517,7 +517,7 @@ function authInit(){
   if(!cfg.supabaseUrl||!cfg.supabaseAnonKey||location.protocol==="file:"){if(gate)gate.hidden=true;return;}
   if(gate)gate.hidden=false;
   import("https://esm.sh/@supabase/supabase-js@2").then(function(m){
-    var sb=m.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);
+    var sb=m.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey,{auth:{flowType:"implicit",detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}});
     function apply(session){if(session&&session.access_token){askToken=session.access_token;if(gate)gate.hidden=true;}else{askToken=null;if(gate)gate.hidden=false;}}
     sb.auth.getSession().then(function(r){apply(r&&r.data&&r.data.session);});
     sb.auth.onAuthStateChange(function(_e,session){apply(session);});
@@ -526,7 +526,7 @@ function authInit(){
       var email=(($("#authEmail").value)||"").trim(),msg=$("#authMsg");
       if(cfg.allowedDomain&&email.toLowerCase().indexOf("@"+cfg.allowedDomain.toLowerCase())<0){if(msg)msg.textContent="Use your @"+cfg.allowedDomain+" email.";return;}
       if(msg)msg.textContent="Sending…";
-      sb.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.href}}).then(function(res){if(msg)msg.textContent=(res&&res.error)?("Couldn't send: "+res.error.message):"Check your email for a sign-in link.";});
+      sb.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.origin+location.pathname}}).then(function(res){if(msg)msg.textContent=(res&&res.error)?("Couldn't send: "+res.error.message):"Check your email for a sign-in link.";});
     });
   }).catch(function(){var msg=$("#authMsg");if(msg)msg.textContent="Couldn't load the sign-in library.";});
 }
