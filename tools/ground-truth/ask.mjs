@@ -17,6 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadArtifacts, REPO_ROOT } from './lib.mjs';
+import { rank } from './retrieval.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const MODEL = process.env.GT_ASK_MODEL || process.env.MODEL || 'claude-sonnet-4-6';
@@ -63,34 +64,10 @@ function findKey() {
   return null;
 }
 
-// ---------- retrieval (keyword overlap; no embeddings, no deps) ----------
-const STOP = new Set('the a an and or of to in on for is are be we our you your it this that with as at by from into about how what which who why when where do does can will would should i me my'.split(' '));
-function tokens(s) {
-  return (s.toLowerCase().match(/[a-z0-9][a-z0-9\-]{1,}/g) || []).filter(t => t.length >= 3 && !STOP.has(t));
-}
-function score(qToks, art) {
-  const title = (art.meta.title || '').toLowerCase();
-  const tags = (art.meta.tags || []).join(' ').toLowerCase();
-  const id = String(art.id).toLowerCase();
-  const body = art.body.toLowerCase();
-  let s = 0;
-  for (const t of qToks) {
-    if (id.includes(t)) s += 4;
-    if (title.includes(t)) s += 3;
-    if (tags.includes(t)) s += 3;
-    const inBody = body.split(t).length - 1;
-    s += Math.min(inBody, 6); // cap body weight per term
-  }
-  return s;
-}
-
+// ---------- retrieval (shared keyword ranking; no embeddings, no deps) ----------
 const arts = loadArtifacts().filter(a => a.isArtifact);
-const qToks = [...new Set(tokens(question))];
-const ranked = arts
-  .map(a => ({ a, s: score(qToks, a) }))
-  .filter(x => x.s > 0)
-  .sort((x, y) => y.s - x.s)
-  .slice(0, topK);
+const docs = arts.map(a => ({ ref: a, id: a.id, title: a.meta.title || '', tags: a.meta.tags || [], body: a.body }));
+const ranked = rank(question, docs, topK).map(({ doc, score }) => ({ a: doc.ref, s: score }));
 
 if (ranked.length === 0) {
   console.log('No Ground Truth artifacts matched that question. Try different terms, or run with --top to widen.');

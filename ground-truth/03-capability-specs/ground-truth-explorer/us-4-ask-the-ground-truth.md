@@ -33,6 +33,13 @@ tags: ["explorer", "ask", "chat", "citations"]
 > empty — satisfying AC1, AC2, AC4 at the CLI. Remaining for `shipped`: the authenticated **web**
 > UI (AC3 internal-only via RLS), pgvector retrieval, and a11y.
 
+> **Shipped — web slice (Jun 2026):** the Explorer now has a **chat bubble** backed by a Vercel
+> serverless function (`api/ask.mjs`) that reuses the same retrieval + Anthropic path; answers carry
+> **clickable citations** that open the cited artifacts, and it falls back to in-browser retrieval
+> when no backend is reachable. Internal-only is enforced by Vercel Deployment Protection + a
+> Supabase session check on the function (Decision 0017). Remaining for `shipped`: pgvector
+> (deferred, 0017) and the full a11y/eval pass.
+
 **As an** internal Rootstrap user **I want** to ask questions of the Ground Truth in plain language
 and get answers that cite the artifacts they draw from **so that** I can interrogate the model and
 trust each answer back to its source.

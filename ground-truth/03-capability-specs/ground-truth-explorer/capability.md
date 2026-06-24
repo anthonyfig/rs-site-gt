@@ -83,6 +83,9 @@ Satisfied by the sum of the six user stories below.
   commits are exposed (US-5, `EV-HUMAN-GATE`).
 - [ ] **Ingest:** an internal user uploads a document or media, an agent **proposes where it
   belongs**, and **a human confirms before anything lands** (Decision 0008, US-6, `EV-HUMAN-GATE`).
+- [ ] **Decisions workspace:** a tracked board of every decision (status, owner, date, what it
+  affects) plus open questions, and a **compose-to-export** path that produces a schema-valid
+  decision file for human commit — Git stays the system of record (US-7, Decisions 0010/0017).
 - [ ] The Ground Truth text shown and written is the **Git repository** (canonical); the database is
   the engine, rebuilt from Git (Decision 0010).
 
@@ -93,6 +96,7 @@ Satisfied by the sum of the six user stories below.
 - [ ] [EXPLORER-4 · Ask the Ground Truth (chat with citations)](us-4-ask-the-ground-truth.md)
 - [ ] [EXPLORER-5 · Validate an artifact → clean commit](us-5-validate-and-commit.md)
 - [ ] [EXPLORER-6 · Ingest a document (proposed placement + human gate)](us-6-ingest-a-document.md)
+- [ ] [EXPLORER-7 · Track decisions & propose a new one (compose-to-export)](us-7-decisions-workspace.md)
 
 ## Evals
 Per-story functional evals (in each story), plus the shared suite: `EV-GT-CONSISTENCY` (the model is

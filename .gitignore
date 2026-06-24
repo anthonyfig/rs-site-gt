@@ -4,6 +4,8 @@ dist/
 build/
 .astro/
 .vercel/
+public/
+api/_gt-index.json
 
 # env & secrets (never commit Supabase / Anthropic keys)
 .env
