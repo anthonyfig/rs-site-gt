@@ -4,15 +4,15 @@ title: "0019 — Explorer decides: outcomes commit back to Git via /api/decide"
 part: "07-decision-log"
 type: decision
 owner: "Anthony (sponsor)"
-status: in-review
+status: approved
 confidence: medium
 sources:
   - "User direction (Jun 2026): the Decisions page must let me actually decide, see decisions assigned to me, badge pending ones, and use Claude to inform the decision"
   - "Refines Decision 0016 (Explorer edits the Ground Truth behind a human gate) and 0017 (chat backend); advances US gt-03-us-explorer-validate for decisions"
   - "Reference impl (Jun 2026): rs-site-gt/api/decide.mjs + the Decide panel in build-explorer.mjs"
 updated: 2026-06-24
-last_validated: "pending"
-validated_by: "pending"
+last_validated: "2026-06-24"
+validated_by: "anthony@rootstrap.com"
 applies_to: ["explorer", "ground-truth"]
 related: ["gt-07-0016-explorer-edits-ground-truth-vercel", "gt-07-0017-explorer-chat-backend-supabase-vercel", "gt-07-0010-git-system-of-record-db-engine", "gt-03-us-explorer-decisions", "gt-03-us-explorer-validate"]
 tags: ["adr", "explorer", "decisions", "write-back", "human-gate"]
@@ -61,3 +61,8 @@ the user's behalf — it is the decision-flavored realization of US-5 (validate 
 - Who may decide vs. only view (validator rights), still open from the Explorer capability and 0016.
 - "Assigned to me" currently matches the **owner free-text** to the user's name/email; an explicit
   `assignee` field may be worth adding later.
+
+## Decision outcome (2026-06-24)
+- **Outcome:** Approved
+- **By:** anthony@rootstrap.com
+- **Rationale:** —
