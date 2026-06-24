@@ -183,8 +183,9 @@ const chatUI = '<button id="askFab" class="askfab" aria-label="Ask the Ground Tr
   + '<div id="askLog" class="asklog" role="log" aria-live="polite"></div>'
   + '<form id="askForm" class="askform"><input id="askInput" class="askinput" placeholder="Ask about the model…" autocomplete="off" aria-label="Your question"><button class="asksend" type="submit">Send</button></form></section>';
 const authUI = '<div id="authGate" class="authgate" hidden><div class="authcard">' + (LOGO || '')
-  + '<h2 class="auth-t">Internal sign-in</h2><p class="auth-s">The Ground Truth Explorer is internal-only. Enter your Rootstrap email to get a sign-in link.</p>'
-  + '<form id="authForm"><input id="authEmail" type="email" class="authinput" placeholder="you@rootstrap.com" required aria-label="Email"><button class="btnprimary" type="submit">Send sign-in link</button></form>'
+  + '<h2 class="auth-t">Internal sign-in</h2><p class="auth-s">The Ground Truth Explorer is internal-only. Sign in with your Rootstrap email and password — or email yourself a link.</p>'
+  + '<form id="authForm"><input id="authEmail" type="email" class="authinput" placeholder="you@rootstrap.com" required aria-label="Email" autocomplete="username"><input id="authPass" type="password" class="authinput" placeholder="Password" aria-label="Password" autocomplete="current-password"><button class="btnprimary" type="submit">Sign in</button></form>'
+  + '<button id="authMagic" class="btnlite" type="button" style="margin-top:8px">Email me a sign-in link instead</button>'
   + '<div id="authMsg" class="auth-msg" aria-live="polite"></div></div></div>';
 
 // ---- retrieval index (rebuilt from Git on every build; Decision 0010) for the /api/ask backend ----
@@ -521,13 +522,17 @@ function authInit(){
     function apply(session){if(session&&session.access_token){askToken=session.access_token;if(gate)gate.hidden=true;}else{askToken=null;if(gate)gate.hidden=false;}}
     sb.auth.getSession().then(function(r){apply(r&&r.data&&r.data.session);});
     sb.auth.onAuthStateChange(function(_e,session){apply(session);});
+    function emailOK(email){return !cfg.allowedDomain||email.toLowerCase().indexOf("@"+cfg.allowedDomain.toLowerCase())>=0;}
+    function sendMagic(email,msg){if(!emailOK(email)){if(msg)msg.textContent="Use your @"+cfg.allowedDomain+" email.";return;}if(msg)msg.textContent="Sending…";sb.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.origin+location.pathname}}).then(function(res){if(msg)msg.textContent=(res&&res.error)?("Couldn't send: "+res.error.message):"Check your email for a sign-in link.";});}
     var form=$("#authForm");
     if(form)form.addEventListener("submit",function(e){e.preventDefault();
-      var email=(($("#authEmail").value)||"").trim(),msg=$("#authMsg");
-      if(cfg.allowedDomain&&email.toLowerCase().indexOf("@"+cfg.allowedDomain.toLowerCase())<0){if(msg)msg.textContent="Use your @"+cfg.allowedDomain+" email.";return;}
-      if(msg)msg.textContent="Sending…";
-      sb.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.origin+location.pathname}}).then(function(res){if(msg)msg.textContent=(res&&res.error)?("Couldn't send: "+res.error.message):"Check your email for a sign-in link.";});
+      var email=(($("#authEmail").value)||"").trim(),pass=(($("#authPass")&&$("#authPass").value)||""),msg=$("#authMsg");
+      if(!emailOK(email)){if(msg)msg.textContent="Use your @"+cfg.allowedDomain+" email.";return;}
+      if(pass){if(msg)msg.textContent="Signing in…";sb.auth.signInWithPassword({email:email,password:pass}).then(function(res){if(res&&res.error&&msg)msg.textContent=res.error.message;});}
+      else sendMagic(email,msg);
     });
+    var mag=$("#authMagic");
+    if(mag)mag.addEventListener("click",function(){var email=(($("#authEmail").value)||"").trim(),msg=$("#authMsg");if(!email){if(msg)msg.textContent="Enter your email first.";return;}sendMagic(email,msg);});
   }).catch(function(){var msg=$("#authMsg");if(msg)msg.textContent="Couldn't load the sign-in library.";});
 }
 
