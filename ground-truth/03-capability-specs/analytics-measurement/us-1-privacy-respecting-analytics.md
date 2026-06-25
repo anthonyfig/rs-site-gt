@@ -38,6 +38,7 @@ tags: ["analytics", "privacy", "consent", "a11y"]
 
 ## Preconditions
 - Analytics is wired through GTM (`GTM-K48G3TB`); the cookie-light/privacy-preserving option is chosen on every config toggle.
+- **Current gap (2026-06-24):** the site loads HubSpot tracking + **RB2B** (person-level B2B de-anonymization) with **no consent layer** (the old site used Termly). A consent gate that blocks these non-essential trackers until opt-in is required to meet this story's ACs.
 - A consent mechanism exists and **defaults to declining non-essential** trackers.
 - URLs use a clean, stable taxonomy (`04`) with **no personal data** in paths or query strings.
 
