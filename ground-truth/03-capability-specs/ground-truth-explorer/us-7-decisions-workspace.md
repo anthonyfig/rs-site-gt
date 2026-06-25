@@ -30,8 +30,13 @@ tags: ["explorer", "decisions", "adr", "human-gate"]
 > **Shipped — workspace slice (Jun 2026):** the Explorer has a **Decisions** section: a tracked board
 > of every decision (number, title, status, owner, date, what it affects), an **open-questions /
 > human-gates** panel, and a **Propose a decision** composer that outputs a schema-valid,
-> commit-ready `07-decision-log/NNNN-*.md` file. **Live write-back to Git is deferred** to US-5's
-> commit path (Decision 0017): a human reviews and commits, so Git stays the source of truth.
+> commit-ready `07-decision-log/NNNN-*.md` file.
+
+> **Shipped — decide slice (Jun 2026):** the board now lets an internal user **Approve / Request
+> changes / Reject** with a Claude **recommendation grounded in the model** (plus follow-ups), an
+> **Assigned to me** filter, and a **pending badge** in the menu. The outcome **commits back to the
+> decision file** via `/api/decide` (Decision 0019) — the Explorer authors a clean commit on the
+> user's behalf, so Git stays the source of truth (the decision-flavored realization of US-5).
 
 **As an** internal Rootstrap user (with the client) **I want** to see every product decision tracked
 in one place and capture a new decision from inside the Explorer **so that** decisions are recorded

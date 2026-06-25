@@ -172,9 +172,11 @@ const mapView = '<section id="view-map" class="view"><div class="ey">Relationshi
 
 // ---- Decisions workspace + chat bubble + auth gate (markup; data rendered client-side) ----
 const decisionsView = '<section id="view-decisions" class="view"><div class="ey">Decisions &amp; open questions</div><h1 class="t">Decisions &amp; open questions</h1>'
-  + '<p class="lead">Every material decision in one tracked board — what we decided, who owns it, when, and what it affects. Capture a new one with <b>Propose a decision</b>; it produces a commit-ready file for the log, so Git stays the source of truth.</p>'
+  + '<p class="lead">Every material decision in one tracked board. <b>Decide</b> on the ones assigned to you — Claude gives a recommendation grounded in the model, and your call commits back to the decision file (Git stays the source of truth). Or capture a new one with <b>Propose a decision</b>.</p>'
   + '<div class="dtoolbar"><button id="decNew" class="btnprimary">+ Propose a decision</button><span id="decCount" class="pill"></span></div>'
   + '<div id="decCompose" class="compose" hidden></div>'
+  + '<div id="decFilter" class="decfilter"></div>'
+  + '<div id="decDetail" class="compose" hidden></div>'
   + '<div id="decBoard"></div>'
   + '<h2>Open questions &amp; human gates</h2><div id="decOpen"></div></section>';
 const chatUI = '<button id="askFab" class="askfab" aria-label="Ask the Ground Truth">✦ Ask</button>'
@@ -183,9 +185,15 @@ const chatUI = '<button id="askFab" class="askfab" aria-label="Ask the Ground Tr
   + '<div id="askLog" class="asklog" role="log" aria-live="polite"></div>'
   + '<form id="askForm" class="askform"><input id="askInput" class="askinput" placeholder="Ask about the model…" autocomplete="off" aria-label="Your question"><button class="asksend" type="submit">Send</button></form></section>';
 const authUI = '<div id="authGate" class="authgate" hidden><div class="authcard">' + (LOGO || '')
-  + '<h2 class="auth-t">Internal sign-in</h2><p class="auth-s">The Ground Truth Explorer is internal-only. Enter your Rootstrap email to get a sign-in link.</p>'
-  + '<form id="authForm"><input id="authEmail" type="email" class="authinput" placeholder="you@rootstrap.com" required aria-label="Email"><button class="btnprimary" type="submit">Send sign-in link</button></form>'
+  + '<h2 class="auth-t">Internal sign-in</h2><p class="auth-s">The Ground Truth Explorer is internal-only. Sign in with your Rootstrap email and password — or email yourself a link.</p>'
+  + '<form id="authForm"><input id="authEmail" type="email" class="authinput" placeholder="you@rootstrap.com" required aria-label="Email" autocomplete="username"><input id="authPass" type="password" class="authinput" placeholder="Password" aria-label="Password" autocomplete="current-password"><button class="btnprimary" type="submit">Sign in</button></form>'
+  + '<button id="authMagic" class="btnlite" type="button" style="margin-top:8px">Email me a sign-in link instead</button>'
   + '<div id="authMsg" class="auth-msg" aria-live="polite"></div></div></div>';
+const ingestView = '<section id="view-ingest" class="view"><div class="ey">Ingest · proposed placement + human gate</div><h1 class="t">Ingest a document</h1>'
+  + '<p class="lead">Paste or upload a text document; an agent proposes where it belongs in the model and drafts a schema-valid artifact. <b>Nothing is written</b> until you review and confirm — then it commits as a new <code>draft</code> for validation. (Binary/media ingest is not yet wired.)</p>'
+  + '<div class="cfield"><label>Document</label><textarea id="ingText" placeholder="Paste document text here…" style="min-height:160px"></textarea></div>'
+  + '<div class="dtoolbar"><label class="btnlite" style="cursor:pointer">Upload .md/.txt<input id="ingFile" type="file" accept=".md,.markdown,.txt,.json,text/plain,text/markdown" hidden></label><span id="ingName" class="pill"></span><button id="ingPropose" class="btnprimary">Propose placement</button></div>'
+  + '<div id="ingResult"></div></section>';
 
 // ---- retrieval index (rebuilt from Git on every build; Decision 0010) for the /api/ask backend ----
 const indexItems = items.filter(i => i.isArtifact).map(i => ({
@@ -230,7 +238,7 @@ function match(i){
 }
 function renderNav(){
   var nav=$("#nav");nav.innerHTML="";
-  [["overview","▣ Overview"],["table","▤ Browse (table)"],["health","◍ Health & gaps"],["decisions","⚖ Decisions"],["map","✦ Relationship map"]].forEach(function(x){var a=ce("a","navtop");a.href="#"+x[0];a.textContent=x[1];nav.appendChild(a);});
+  [["overview","▣ Overview"],["table","▤ Browse (table)"],["health","◍ Health & gaps"],["decisions","⚖ Decisions"],["ingest","⤓ Ingest"],["map","✦ Relationship map"]].forEach(function(x){var a=ce("a","navtop");a.href="#"+x[0];a.textContent=x[1];if(x[0]==="decisions"){var n=pendingBadgeCount();if(n>0){var b=ce("span","navbadge");b.textContent=n;a.appendChild(b);}}nav.appendChild(a);});
   function byTitle(a,b){return a.title.localeCompare(b.title);}
   function link(i,child){
     var a=ce("a",child?"child":null);a.href="#"+encodeURIComponent(i.id);
@@ -346,6 +354,7 @@ function show(id){
   else if(id==="table"){actExc("view-table");bc.innerHTML='<a href="#overview">Overview</a> › Browse';renderTable();}
   else if(id==="health"){actExc("view-health");bc.innerHTML='<a href="#overview">Overview</a> › Health & gaps';renderHealth();}
   else if(id==="decisions"){actExc("view-decisions");bc.innerHTML='<a href="#overview">Overview</a> › Decisions & open questions';renderDecisions();}
+  else if(id==="ingest"){actExc("view-ingest");bc.innerHTML='<a href="#overview">Overview</a> › Ingest';}
   else if(id==="map"){actExc("view-map");bc.innerHTML='<a href="#overview">Overview</a> › Relationship map';buildMap(mapCenter);}
   else{var el=document.getElementById("art-"+id);if(el){[].forEach.call(document.querySelectorAll(".art,.view"),function(s){s.classList.remove("active");});el.classList.add("active");var it=byId[id];var sec=it?areaLabel(it.part):"";bc.innerHTML='<a href="#overview">Overview</a> › '+sec+' › '+(it?it.title:id);}else{actExc("view-overview");id="overview";}}
   var m=$(".main");if(m)m.scrollTop=0;hi();
@@ -368,23 +377,33 @@ function decisionsList(){
 }
 function renderDecisions(){
   var board=$("#decBoard");if(!board)return;
-  var rows=decisionsList();
+  var all=decisionsList();
+  if(!me&&decFilter==="mine")decFilter="all";
+  var fb=$("#decFilter");
+  if(fb){
+    var chips=[["mine","Assigned to me",all.filter(assignedToMe).length],["all","All",all.length],["pending","Pending",all.filter(isPending).length]];
+    fb.innerHTML=chips.map(function(c){return '<button class="dchip'+(decFilter===c[0]?" on":"")+'" data-f="'+c[0]+'">'+c[1]+' · '+c[2]+'</button>';}).join("");
+    [].forEach.call(fb.querySelectorAll(".dchip"),function(b){b.onclick=function(){decFilter=b.getAttribute("data-f");renderDecisions();};});
+  }
+  var rows=all.filter(function(d){if(decFilter==="mine")return assignedToMe(d);if(decFilter==="pending")return isPending(d);return true;});
   var cc=$("#decCount");if(cc)cc.textContent=rows.length+" decisions";
-  var h='<table class="dtable"><thead><tr><th>#</th><th>Decision</th><th>Status</th><th>Owner</th><th>Date</th><th>Affects</th></tr></thead><tbody>';
+  var h='<table class="dtable"><thead><tr><th>#</th><th>Decision</th><th>Status</th><th>Owner</th><th>Date</th><th></th></tr></thead><tbody>';
+  if(!rows.length)h+='<tr><td colspan="6" class="c-dim">Nothing here'+(decFilter==="mine"?" assigned to you":"")+'.</td></tr>';
   rows.forEach(function(d){
-    var aff=(d.affects||[]).map(function(s){return '<span class="chip">'+s+'</span>';}).join("");
-    h+='<tr class="drow" data-id="'+d.id+'"><td class="dnum">'+(d.num||"—")+'</td><td>'+d.title+'</td><td><span class="badge b-'+d.status+'">'+(d.status||"—")+'</span></td><td class="c-dim">'+(d.owner||"—")+'</td><td class="c-dim">'+(d.date||"—")+'</td><td>'+(aff||'<span class="c-dim">—</span>')+'</td></tr>';
+    var mine=assignedToMe(d);
+    h+='<tr class="drow'+(mine?" mine":"")+'" data-id="'+d.id+'"><td class="dnum">'+(d.num||"—")+'</td><td>'+d.title+(mine?' <span class="metag">you</span>':"")+'</td><td><span class="badge b-'+d.status+'">'+(d.status||"—")+'</span></td><td class="c-dim">'+(d.owner||"—")+'</td><td class="c-dim">'+(d.date||"—")+'</td><td>'+(isPending(d)?'<button class="btnlite ddecide" data-id="'+d.id+'">Decide</button>':'<span class="c-dim">done</span>')+'</td></tr>';
   });
   h+='</tbody></table>';board.innerHTML=h;
-  [].forEach.call(board.querySelectorAll(".drow"),function(tr){tr.addEventListener("click",function(){location.hash="#"+encodeURIComponent(tr.getAttribute("data-id"));});});
+  [].forEach.call(board.querySelectorAll(".ddecide"),function(b){b.onclick=function(e){e.stopPropagation();openDecide(b.getAttribute("data-id"));};});
+  [].forEach.call(board.querySelectorAll(".drow"),function(tr){tr.onclick=function(){openDecide(tr.getAttribute("data-id"));};});
   var open=$("#decOpen");
   if(open){
-    var pend=rows.filter(function(d){return d.status==="in-review"||d.status==="draft"||d.status==="needs-revalidation";});
     var oqId=D.health&&D.health.openQuestions;
     var oh='<div class="hpanel"><h3><span>Open questions (human gate)</span></h3>';
     if(oqId&&byId[oqId])oh+='<a class="chip" href="#'+encodeURIComponent(oqId)+'">'+(byId[oqId].title||"Open questions")+'</a>';
     else oh+='<div class="ok">None recorded ✓</div>';
     oh+='</div>';
+    var pend=all.filter(isPending);
     var ph='<div class="hpanel"><h3><span>Decisions awaiting approval</span><span class="cnt">'+pend.length+'</span></h3>';
     if(!pend.length)ph+='<div class="ok">All decisions are approved ✓</div>';
     else{ph+='<div class="hchips">';pend.forEach(function(d){ph+='<a class="chip" href="#'+encodeURIComponent(d.id)+'">'+(d.num?d.num+" · ":"")+d.title+'</a>';});ph+='</div>';}
@@ -453,8 +472,105 @@ function composeGen(){
 }
 function decInit(){var b=$("#decNew");if(b)b.addEventListener("click",function(){var box=$("#decCompose");if(box&&!box.hidden){box.hidden=true;box.innerHTML="";}else composeOpen();});}
 
+// ---------- Decide on a decision (recommendation + write-back to Git) ----------
+var decFilter="mine",recCache={};
+function meTokens(){if(!me)return[];var t=[];if(me.email){t.push(me.email.toLowerCase());var lp=me.email.split("@")[0];if(lp)t.push(lp.toLowerCase());}if(me.name)me.name.toLowerCase().split(/\\s+/).forEach(function(w){if(w.length>=3)t.push(w);});return t;}
+function assignedToMe(d){var ts=meTokens();if(!ts.length)return false;var o=(d.owner||"").toLowerCase();for(var i=0;i<ts.length;i++){if(ts[i].length>=3&&o.indexOf(ts[i])>=0)return true;}return false;}
+function isPending(d){return d.status==="in-review"||d.status==="draft"||d.status==="needs-revalidation";}
+function pendingBadgeCount(){var rows=decisionsList();if(me)return rows.filter(function(d){return assignedToMe(d)&&isPending(d);}).length;return rows.filter(isPending).length;}
+function decById(id){var l=decisionsList();for(var i=0;i<l.length;i++)if(l[i].id===id)return l[i];return null;}
+function LBL(o){return o==="approve"?"Approved":o==="reject"?"Rejected":"Changes requested";}
+function callAsk(q,history,onOk,onErr){
+  if(location.protocol==="file:"){var lf=localAnswer(q);onOk(lf.answer,lf.sources);return;}
+  var headers={"content-type":"application/json"};if(askToken)headers["authorization"]="Bearer "+askToken;
+  fetch(apiURL(),{method:"POST",headers:headers,body:JSON.stringify({question:q,history:history||[]})})
+    .then(function(res){return res.json().then(function(j){return{ok:res.ok,j:j};},function(){return{ok:res.ok,j:{}};});})
+    .then(function(o){if(!o.ok){onErr((o.j&&o.j.error)||"Couldn't get a recommendation.");return;}var j=o.j;if(j.answer)onOk(j.answer,j.sources||[]);else{var lf=localAnswer(q);onOk(lf.answer,(j.sources&&j.sources.length)?j.sources:lf.sources);}})
+    .catch(function(){var lf=localAnswer(q);onOk(lf.answer,lf.sources);});
+}
+function renderRec(id){var el=$("#decRecBody");if(!el)return;var r=recCache[id];if(!r){el.textContent="";return;}el.innerHTML=linkifyCites(r.text);if(r.sources&&r.sources.length){var s=ce("div","asksrc");var html='<div class="k">sources</div>';r.sources.forEach(function(x){var label=(x.title||x.id);if(label.length>46)label=label.slice(0,46)+"…";html+='<a href="#'+encodeURIComponent(x.id)+'">'+escHtml(label)+'</a>';});s.innerHTML=html;el.appendChild(s);}}
+function getRecommendation(id,d){var el=$("#decRecBody");if(el)el.textContent="Getting a recommendation…";var q="Decision "+(d.num||id)+' "'+d.title+'": based only on the Ground Truth, do you recommend approving this decision? Give a clear recommendation (approve, request changes, or reject) with brief reasoning, and cite the artifacts.';callAsk(q,[],function(ans,sources){recCache[id]={text:ans||"No recommendation available.",sources:sources||[]};renderRec(id);},function(err){if(el)el.textContent=err;});}
+function askAboutDecision(id,d,q){var body=$("#decRecBody");if(body){var qd=ce("div","decqa");qd.textContent="You: "+q;body.appendChild(qd);body.scrollTop=body.scrollHeight;}var inp=$("#decFollow");if(inp)inp.value="";var hist=recCache[id]?[{role:"user",content:"About decision "+id+": "+d.title},{role:"assistant",content:recCache[id].text}]:[];callAsk(q,hist,function(ans){if(body){var ad=ce("div","decqa bot");ad.innerHTML=linkifyCites(ans||"—");body.appendChild(ad);body.scrollTop=body.scrollHeight;}},function(err){if(body){var ad=ce("div","decqa bot");ad.textContent=err;body.appendChild(ad);}});}
+function openDecide(id){
+  var box=$("#decDetail");if(!box)return;var d=decById(id);if(!d)return;box.hidden=false;
+  box.innerHTML='<div class="ddhead"><div><div class="pill">'+(d.num||"")+' · '+id+'</div><h3>'+escHtml(d.title)+'</h3></div><a class="btnlite" href="#'+encodeURIComponent(id)+'">Open full page</a></div>'
+    +'<div class="ddmeta"><span class="badge b-'+d.status+'">'+(d.status||"—")+'</span> <span class="c-dim">owner: '+escHtml(d.owner||"—")+(assignedToMe(d)?" · assigned to you":"")+'</span></div>'
+    +'<div class="decrec"><div class="decrec-h"><span>✦ Claude’s recommendation</span><span class="pill">grounded in the Ground Truth</span></div><div id="decRecBody" class="decrec-b"></div><div class="decfollow"><input id="decFollow" placeholder="Ask a follow-up about this decision…"><button class="btnlite" id="decFollowBtn">Ask</button></div></div>'
+    +'<div class="cfield"><label>Your rationale</label><textarea id="decRationale" placeholder="Why you’re deciding this…"></textarea><button class="btnlite" id="decUseRec" type="button" style="margin-top:6px">Use recommendation as rationale</button></div>'
+    +'<div class="decact"><button class="btnapprove" data-o="approve">Approve</button><button class="btnchanges" data-o="request-changes">Request changes</button><button class="btnreject" data-o="reject">Reject</button><button class="btnlite" id="decClose" type="button">Close</button></div>'
+    +'<div id="decResult" class="cout"></div>';
+  var c=$("#decClose");if(c)c.onclick=function(){box.hidden=true;box.innerHTML="";};
+  var u=$("#decUseRec");if(u)u.onclick=function(){var r=recCache[id];if(r&&r.text){var ta=$("#decRationale");if(ta)ta.value=r.text;}};
+  var fbtn=$("#decFollowBtn");if(fbtn)fbtn.onclick=function(){var q=(($("#decFollow").value)||"").trim();if(q)askAboutDecision(id,d,q);};
+  [].forEach.call(box.querySelectorAll(".decact button[data-o]"),function(b){b.onclick=function(){submitDecision(id,d,b.getAttribute("data-o"));};});
+  if(recCache[id])renderRec(id);else getRecommendation(id,d);
+  if(box.scrollIntoView)box.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function submitDecision(id,d,outcome){
+  var rationale=(($("#decRationale")&&$("#decRationale").value)||"").trim();
+  var out=$("#decResult");if(out)out.innerHTML='<span class="pill">Recording '+LBL(outcome)+"…</span>";
+  if(location.protocol==="file:"){if(out)out.innerHTML='<div class="cfile">Local mode — deploy the Explorer to record decisions to Git.</div>';return;}
+  var headers={"content-type":"application/json"};if(askToken)headers["authorization"]="Bearer "+askToken;
+  var base=((D.cfg&&D.cfg.apiBase)||"");base=base?base.replace(/\\/$/,""):"";
+  fetch(base+"/api/decide",{method:"POST",headers:headers,body:JSON.stringify({id:id,outcome:outcome,rationale:rationale})})
+    .then(function(res){return res.json().then(function(j){return{ok:res.ok,status:res.status,j:j};},function(){return{ok:res.ok,status:res.status,j:{}};});})
+    .then(function(o){var j=o.j||{};
+      if(o.ok&&j.ok){var item=byId[id];if(item&&j.status)item.status=j.status;if(out)out.innerHTML='<div class="cfile">Recorded: '+escHtml(LBL(outcome))+'. Committed to Git'+(j.commit?' (<a href="'+j.commit+'" target="_blank" rel="noopener">view commit</a>)':"")+'. The board updates after the ~1-min rebuild.</div>';renderDecisions();renderNav();}
+      else if(o.status===501||j.fallback){if(out)out.innerHTML='<div class="cfile">Git write-back isn’t configured yet — add GITHUB_TOKEN (repo Contents: read/write) to the deployment env, then try again.</div>';}
+      else{if(out)out.innerHTML='<div class="cfile">Could not record: '+escHtml(j.error||("error "+o.status))+'</div>';}
+    })
+    .catch(function(){if(out)out.innerHTML='<div class="cfile">Network error recording the decision.</div>';});
+}
+
+// ---------- Ingest a document (propose placement + human gate) ----------
+function ingBase(){var b=((D.cfg&&D.cfg.apiBase)||"");return b?b.replace(/\\/$/,""):"";}
+function ingestInit(){
+  var f=$("#ingFile");if(f&&!f._wired){f._wired=1;f.addEventListener("change",function(){var file=f.files&&f.files[0];if(!file)return;var nm=$("#ingName");if(nm)nm.textContent=file.name;var rd=new FileReader();rd.onload=function(){var ta=$("#ingText");if(ta)ta.value=String(rd.result||"");};rd.readAsText(file);});}
+  var b=$("#ingPropose");if(b&&!b._wired){b._wired=1;b.addEventListener("click",ingestPropose);}
+}
+function ingestBusy(on){var b=$("#ingPropose");if(b){b.disabled=on;b.textContent=on?"Proposing…":"Propose placement";}}
+function ingestPropose(){
+  var text=(($("#ingText")&&$("#ingText").value)||"").trim();if(!text){var t=$("#ingText");if(t)t.focus();return;}
+  if(location.protocol==="file:"){$("#ingResult").innerHTML='<div class="compose">Ingest needs the deployed backend (the agent runs server-side). Open the deployed Explorer to use it.</div>';return;}
+  var filename=(($("#ingName")&&$("#ingName").textContent)||"pasted document");
+  ingestBusy(true);
+  var headers={"content-type":"application/json"};if(askToken)headers["authorization"]="Bearer "+askToken;
+  fetch(ingBase()+"/api/ingest",{method:"POST",headers:headers,body:JSON.stringify({step:"propose",filename:filename,text:text})})
+    .then(function(res){return res.json().then(function(j){return{ok:res.ok,status:res.status,j:j};},function(){return{ok:res.ok,status:res.status,j:{}};});})
+    .then(function(o){ingestBusy(false);var j=o.j||{};if(!o.ok||!j.proposal){$("#ingResult").innerHTML='<div class="compose">'+escHtml(j.error||("Could not propose ("+o.status+")."))+'</div>';return;}renderProposal(j.proposal);})
+    .catch(function(){ingestBusy(false);$("#ingResult").innerHTML='<div class="compose">Network error contacting the ingest agent.</div>';});
+}
+function renderProposal(p){
+  var rel=(p.related||[]).map(function(id){return '<a class="chip" href="#'+encodeURIComponent(id)+'">'+escHtml(citeLabel(id))+'</a>';}).join("");
+  var upd=p.updates_existing?'<div class="pill" style="color:var(--live)">Heads up: this may instead update <a href="#'+encodeURIComponent(p.updates_existing)+'">'+escHtml(p.updates_existing)+'</a> — review before creating a new artifact.</div>':"";
+  $("#ingResult").innerHTML='<div class="compose"><h3>Proposed placement</h3>'
+    +'<div class="decrec"><div class="decrec-b">'+escHtml(p.rationale||"")+'</div></div>'+upd
+    +'<div class="crow"><div class="cfield"><label>Part · type</label><input value="'+escHtml(p.part+" · "+p.type)+'" readonly></div><div class="cfield"><label>Confidence</label><input value="'+escHtml(p.confidence||"")+'" readonly></div></div>'
+    +(rel?'<div class="cfield"><label>Related</label><div>'+rel+'</div></div>':"")
+    +'<div class="cfield"><label>File path</label><input id="ingPath" value="'+escHtml(p.path)+'"></div>'
+    +'<div class="cfield"><label>Artifact (edit before committing)</label><textarea id="ingContent" class="ingcontent">'+escHtml(p.content)+'</textarea></div>'
+    +'<div class="decact"><button class="btnapprove" id="ingCommit" type="button">Confirm &amp; commit</button><button class="btnlite" id="ingReject" type="button">Reject</button></div>'
+    +'<div id="ingCommitOut" class="cout"></div></div>';
+  var rj=$("#ingReject");if(rj)rj.onclick=function(){$("#ingResult").innerHTML="";};
+  var cm=$("#ingCommit");if(cm)cm.onclick=ingestCommit;
+}
+function ingestCommit(){
+  var path=(($("#ingPath")&&$("#ingPath").value)||"").trim();var content=(($("#ingContent")&&$("#ingContent").value)||"");
+  var out=$("#ingCommitOut");if(out)out.innerHTML='<span class="pill">Committing…</span>';
+  var headers={"content-type":"application/json"};if(askToken)headers["authorization"]="Bearer "+askToken;
+  fetch(ingBase()+"/api/ingest",{method:"POST",headers:headers,body:JSON.stringify({step:"commit",path:path,content:content})})
+    .then(function(res){return res.json().then(function(j){return{ok:res.ok,status:res.status,j:j};},function(){return{ok:res.ok,status:res.status,j:{}};});})
+    .then(function(o){var j=o.j||{};
+      if(o.ok&&j.ok){if(out)out.innerHTML='<div class="cfile">Committed '+escHtml(j.path)+(j.commit?' (<a href="'+j.commit+'" target="_blank" rel="noopener">view commit</a>)':"")+'. It enters as a draft after the ~1-min rebuild — then validate it from Browse.</div>';}
+      else if(o.status===409){if(out)out.innerHTML='<div class="cfile">A file already exists at that path — change the path and retry.</div>';}
+      else if(o.status===501||j.fallback){if(out)out.innerHTML='<div class="cfile">Git write-back isn’t configured (add GITHUB_TOKEN).</div>';}
+      else{if(out)out.innerHTML='<div class="cfile">Could not commit: '+escHtml(j.error||("error "+o.status))+'</div>';}
+    })
+    .catch(function(){if(out)out.innerHTML='<div class="cfile">Network error committing.</div>';});
+}
+
 // ---------- Ask the Ground Truth (chat) ----------
-var askHistory=[],askBusy=false,askToken=null;
+var askHistory=[],askBusy=false,askToken=null,me=null;
 function apiURL(){var b=(D.cfg&&D.cfg.apiBase)||"";return (b?b.replace(/\\/$/,""):"")+"/api/ask";}
 function setMode(label){var m=$("#askMode");if(m)m.textContent=label||"";}
 function addUser(text){var log=$("#askLog");var d=ce("div","askmsg user");d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;}
@@ -517,22 +633,26 @@ function authInit(){
   if(!cfg.supabaseUrl||!cfg.supabaseAnonKey||location.protocol==="file:"){if(gate)gate.hidden=true;return;}
   if(gate)gate.hidden=false;
   import("https://esm.sh/@supabase/supabase-js@2").then(function(m){
-    var sb=m.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);
-    function apply(session){if(session&&session.access_token){askToken=session.access_token;if(gate)gate.hidden=true;}else{askToken=null;if(gate)gate.hidden=false;}}
+    var sb=m.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey,{auth:{flowType:"implicit",detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}});
+    function apply(session){if(session&&session.access_token){askToken=session.access_token;var u=session.user||{};me={email:(u.email||""),name:((u.user_metadata&&(u.user_metadata.name||u.user_metadata.full_name))||"")};if(gate)gate.hidden=true;}else{askToken=null;me=null;if(gate)gate.hidden=false;}renderNav();if($("#view-decisions")&&$("#view-decisions").classList.contains("active"))renderDecisions();}
     sb.auth.getSession().then(function(r){apply(r&&r.data&&r.data.session);});
     sb.auth.onAuthStateChange(function(_e,session){apply(session);});
+    function emailOK(email){return !cfg.allowedDomain||email.toLowerCase().indexOf("@"+cfg.allowedDomain.toLowerCase())>=0;}
+    function sendMagic(email,msg){if(!emailOK(email)){if(msg)msg.textContent="Use your @"+cfg.allowedDomain+" email.";return;}if(msg)msg.textContent="Sending…";sb.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.origin+location.pathname}}).then(function(res){if(msg)msg.textContent=(res&&res.error)?("Couldn't send: "+res.error.message):"Check your email for a sign-in link.";});}
     var form=$("#authForm");
     if(form)form.addEventListener("submit",function(e){e.preventDefault();
-      var email=(($("#authEmail").value)||"").trim(),msg=$("#authMsg");
-      if(cfg.allowedDomain&&email.toLowerCase().indexOf("@"+cfg.allowedDomain.toLowerCase())<0){if(msg)msg.textContent="Use your @"+cfg.allowedDomain+" email.";return;}
-      if(msg)msg.textContent="Sending…";
-      sb.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.href}}).then(function(res){if(msg)msg.textContent=(res&&res.error)?("Couldn't send: "+res.error.message):"Check your email for a sign-in link.";});
+      var email=(($("#authEmail").value)||"").trim(),pass=(($("#authPass")&&$("#authPass").value)||""),msg=$("#authMsg");
+      if(!emailOK(email)){if(msg)msg.textContent="Use your @"+cfg.allowedDomain+" email.";return;}
+      if(pass){if(msg)msg.textContent="Signing in…";sb.auth.signInWithPassword({email:email,password:pass}).then(function(res){if(res&&res.error&&msg)msg.textContent=res.error.message;},function(err){if(msg)msg.textContent=(err&&err.message)||"Sign-in failed.";});}
+      else sendMagic(email,msg);
     });
+    var mag=$("#authMagic");
+    if(mag)mag.addEventListener("click",function(){var email=(($("#authEmail").value)||"").trim(),msg=$("#authMsg");if(!email){if(msg)msg.textContent="Enter your email first.";return;}sendMagic(email,msg);});
   }).catch(function(){var msg=$("#authMsg");if(msg)msg.textContent="Couldn't load the sign-in library.";});
 }
 
 var gen=$("#gen");if(gen)gen.textContent="built "+D.generated;
-buildFacets();renderNav();route();decInit();askInit();authInit();
+buildFacets();renderNav();route();decInit();askInit();authInit();ingestInit();
 })();`;
 
 const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -628,9 +748,26 @@ h1.t{font-size:27px;margin:.25em 0 .35em;letter-spacing:-.01em}.lead{color:var(-
 @media (max-width:520px){.askpanel{right:8px;bottom:8px;width:calc(100vw - 16px)}}
 /* ---- Auth gate ---- */
 .authgate{position:fixed;inset:0;background:var(--ink);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.authgate[hidden],.askpanel[hidden]{display:none!important}
 .authcard{max-width:380px;width:100%;background:var(--ink2);border:1px solid var(--line);border-radius:16px;padding:28px;text-align:center}.authcard svg{height:20px;width:auto;margin-bottom:14px}.authcard svg path{fill:var(--paper)}
 .auth-t{font-size:19px;margin:0 0 6px}.auth-s{color:var(--dim);font-size:13.5px;margin:0 0 16px}
 .authinput{width:100%;background:var(--ink3);border:1px solid var(--line);color:var(--paper);border-radius:9px;padding:10px 12px;font-size:14px;margin-bottom:10px;font-family:inherit}.auth-msg{font-size:13px;color:var(--dim);margin-top:12px;min-height:18px}
+/* ---- Decide on a decision ---- */
+.navtop{display:flex;align-items:center}.navbadge{margin-left:auto;background:var(--live);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;border-radius:20px;padding:1px 7px;min-width:18px;text-align:center}
+.decfilter{display:flex;gap:8px;margin:0 0 12px;flex-wrap:wrap}
+.dchip{background:var(--ink3);border:1px solid var(--line);color:var(--dim);font-size:12px;padding:4px 11px;border-radius:20px;cursor:pointer;font-family:inherit}.dchip.on{background:var(--live);color:var(--ink);border-color:var(--live);font-weight:600}
+.drow.mine td{background:rgba(255,200,63,.06)}.metag{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--ink);background:var(--live);border-radius:4px;padding:1px 5px;vertical-align:middle;text-transform:uppercase}
+.ddecide{padding:3px 10px;font-size:12px}
+.ddhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.ddhead h3{margin:3px 0 0;font-size:16px}.ddmeta{margin:6px 0 12px}
+.decrec{background:var(--ink3);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:12px}
+.decrec-h{display:flex;align-items:center;gap:8px;margin-bottom:7px}.decrec-h span:first-child{color:var(--live);font-weight:600;font-size:13px}
+.decrec-b{font-size:13.5px;line-height:1.5;color:var(--paper);max-height:260px;overflow:auto}.decrec-b a{color:var(--live)}
+.decqa{font-size:13px;line-height:1.45;margin:8px 0;padding:7px 10px;border-radius:9px;background:var(--ink2)}.decqa.bot{border-left:2px solid var(--live)}
+.decfollow{display:flex;gap:7px;margin-top:9px}.decfollow input{flex:1;background:var(--ink2);border:1px solid var(--line);color:var(--paper);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit}
+.decact{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.btnapprove,.btnchanges,.btnreject{border:none;border-radius:8px;padding:8px 14px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit}
+.btnapprove{background:var(--good);color:#08130d}.btnchanges{background:var(--ink3);border:1px solid var(--live);color:var(--live)}.btnreject{background:var(--ink3);border:1px solid var(--strike);color:var(--strike)}.decact button:hover{filter:brightness(1.08)}
+.ingcontent{min-height:260px;width:100%;background:var(--ink3);border:1px solid var(--line);color:var(--paper);border-radius:8px;padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:12px}
 </style></head><body>
 <div class="top"><div class="b">${LOGO || 'Rootstrap'} <small>GROUND TRUTH · v0.3</small></div><input id="q" placeholder="Search the model…"><div id="gen" class="pill"></div></div>
 ${authUI}
@@ -642,6 +779,7 @@ ${authUI}
     ${healthView}
     ${mapView}
     ${decisionsView}
+    ${ingestView}
     ${articles}
   </main>
 </div>

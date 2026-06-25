@@ -29,6 +29,10 @@ that is deferred.
 - `REQUIRE_AUTH` — `true` to force the JWT check even if you haven't set `SUPABASE_*`. Optional;
   it is implied whenever `SUPABASE_URL` + `SUPABASE_ANON_KEY` are present.
 - `GT_ASK_MODEL` — optional model override (default `claude-sonnet-4-6`).
+- `GITHUB_TOKEN` — required to **decide** (write a decision outcome back to Git). Use a fine-grained
+  PAT scoped to this repo with **Contents: read/write**. `/api/decide` commits the outcome to the
+  decision's `.md`. Without it, deciding falls back to a manual-commit message (nothing breaks).
+- `GITHUB_REPO` / `GITHUB_BRANCH` — optional; default `anthonyfig/rs-site-gt` / `main`.
 
 `SUPABASE_URL` and `SUPABASE_ANON_KEY` are read **at build time** and embedded in the page so the
 browser can sign users in. They are public values by design. The Anthropic key and the Supabase
