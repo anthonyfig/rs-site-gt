@@ -5,7 +5,7 @@ part: "03-capability-specs"
 type: user-story
 owner: "Head of Marketing (suggested) + Platform Architect"
 status: draft
-delivery_status: in-progress
+delivery_status: shipped
 confidence: medium
 sources:
   - "Live capabilities mega-menu (AI/Data/Cloud + React/React Native/Node/Rails)"

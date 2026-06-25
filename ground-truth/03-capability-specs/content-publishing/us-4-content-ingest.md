@@ -5,7 +5,7 @@ part: "03-capability-specs"
 type: user-story
 owner: "Platform Architect (suggested) + Head of Marketing"
 status: draft
-delivery_status: in-progress
+delivery_status: shipped
 confidence: medium
 sources: ["Capability gt-03-capability-content-publishing", "Decision 0008 (intelligent ingest)", "Decision 0013 (Sanity Studio = the no-code editor)", "gt-02-business-rules (BR-5/8)"]
 updated: 2026-06-23

@@ -5,7 +5,7 @@ part: "03-capability-specs"
 type: user-story
 owner: "Product Architect (suggested) + Head of Marketing"
 status: in-review
-delivery_status: in-progress
+delivery_status: shipped
 confidence: medium
 sources:
   - "Capability gt-03-capability-navigation-search"

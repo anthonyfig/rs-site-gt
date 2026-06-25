@@ -5,7 +5,7 @@ part: "03-capability-specs"
 type: user-story
 owner: "Head of Marketing (suggested)"
 status: draft
-delivery_status: in-progress
+delivery_status: shipped
 confidence: medium
 sources: ["Capability gt-03-capability-content-publishing", "gt-01-goals-and-scope", "gt-01-audience-and-icp", "gt-02-entities"]
 updated: 2026-06-22

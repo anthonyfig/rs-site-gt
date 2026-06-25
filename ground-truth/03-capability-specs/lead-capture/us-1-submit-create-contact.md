@@ -5,7 +5,7 @@ part: "03-capability-specs"
 type: user-story
 owner: "Head of Sales (suggested)"
 status: draft
-delivery_status: in-progress
+delivery_status: shipped
 confidence: medium
 sources: ["Capability gt-03-capability-lead-capture", "gt-05-hubspot", "gt-01-audience-and-icp"]
 updated: 2026-06-24

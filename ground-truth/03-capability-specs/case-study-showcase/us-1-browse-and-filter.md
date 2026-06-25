@@ -5,7 +5,7 @@ part: "03-capability-specs"
 type: user-story
 owner: "Head of Marketing (suggested)"
 status: draft
-delivery_status: in-progress
+delivery_status: shipped
 confidence: medium
 sources: ["Capability gt-03-capability-case-study-showcase", "Notion: ICP & Buyer Persona Report (May 2026)"]
 updated: 2026-06-22

@@ -5,7 +5,7 @@ part: "03-capability-specs"
 type: user-story
 owner: "Head of Marketing (suggested) + Platform Architect"
 status: approved
-delivery_status: done
+delivery_status: shipped
 confidence: high
 sources: ["Capability gt-03-capability-insights", "live: rootstrap.com/blog (Webflow CMS)", "gt-02-content-types (Insight/Post)", "Decision 0006 (exit Webflow)", "Decision 0013 (Sanity)"]
 updated: 2026-06-24
