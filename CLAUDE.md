@@ -47,6 +47,12 @@ analyze & fix → merge (squash) → sync local `main` (delete the branch).** Re
 skeptical reviewer trying to reject it (GT drift, `confidence: low` shipped as truth, broken
 metadata/schema, regressions); post the critique, resolve every point, then merge. After merge,
 fast-forward local `main` so it never drifts from remote. Canonical loop: `rs-site/CLAUDE.md` + `rs-ip/pr/`.
+
+**Keep the Coverage dashboard honest.** Whenever a change ships or advances a capability / user story,
+update that story's `delivery_status` (→ `in-progress` / `shipped`) — and `last_validated` once an eval or
+human verifies it — in the Ground Truth, in the same PR (or a paired GT PR). The Explorer's **Coverage**
+view is generated from those fields, so "what's built vs what's missing" is only as honest as you keep them.
+
 Tiny doc/typo fixes may skip the branch only when explicitly agreed.
 
 ## Engineering conventions

@@ -5,7 +5,7 @@ part: "03-capability-specs"
 type: user-story
 owner: "Product Architect (suggested) + Anthony"
 status: draft
-delivery_status: in-progress
+delivery_status: shipped
 confidence: medium
 sources:
   - "Capability gt-03-capability-explorer"
