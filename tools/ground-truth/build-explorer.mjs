@@ -195,6 +195,10 @@ const ingestView = '<section id="view-ingest" class="view"><div class="ey">Inges
   + '<div class="dtoolbar"><label class="btnlite" style="cursor:pointer">Upload .md/.txt<input id="ingFile" type="file" accept=".md,.markdown,.txt,.json,text/plain,text/markdown" hidden></label><span id="ingName" class="pill"></span><button id="ingPropose" class="btnprimary">Propose placement</button></div>'
   + '<div id="ingResult"></div></section>';
 
+const coverageView = '<section id="view-coverage" class="view"><div class="ey">Delivery coverage</div><h1 class="t">Coverage — built vs planned</h1>'
+  + '<p class="lead">Every capability and its user stories, with <b>delivery status</b> and how fresh the validation is. Generated from each artifact’s <code>delivery_status</code> + <code>last_validated</code> frontmatter (Git stays the source of truth) — keep those honest and this view stays honest.</p>'
+  + '<div id="covSummary" class="cards"></div><div id="covBody"></div></section>';
+
 // ---- retrieval index (rebuilt from Git on every build; Decision 0010) for the /api/ask backend ----
 const indexItems = items.filter(i => i.isArtifact).map(i => ({
   id: i.id, title: i.title, part: i.part, type: i.type, status: i.status,
@@ -238,7 +242,7 @@ function match(i){
 }
 function renderNav(){
   var nav=$("#nav");nav.innerHTML="";
-  [["overview","▣ Overview"],["table","▤ Browse (table)"],["health","◍ Health & gaps"],["decisions","⚖ Decisions"],["ingest","⤓ Ingest"],["map","✦ Relationship map"]].forEach(function(x){var a=ce("a","navtop");a.href="#"+x[0];a.textContent=x[1];if(x[0]==="decisions"){var n=pendingBadgeCount();if(n>0){var b=ce("span","navbadge");b.textContent=n;a.appendChild(b);}}nav.appendChild(a);});
+  [["overview","▣ Overview"],["table","▤ Browse (table)"],["health","◍ Health & gaps"],["decisions","⚖ Decisions"],["ingest","⤓ Ingest"],["coverage","◫ Coverage"],["map","✦ Relationship map"]].forEach(function(x){var a=ce("a","navtop");a.href="#"+x[0];a.textContent=x[1];if(x[0]==="decisions"){var n=pendingBadgeCount();if(n>0){var b=ce("span","navbadge");b.textContent=n;a.appendChild(b);}}nav.appendChild(a);});
   function byTitle(a,b){return a.title.localeCompare(b.title);}
   function link(i,child){
     var a=ce("a",child?"child":null);a.href="#"+encodeURIComponent(i.id);
@@ -316,6 +320,30 @@ function renderHealth(){
   var oq=ce("div","hpanel");oq.innerHTML='<h3><span>Open questions (human gates)</span></h3>';
   var a=ce("a","chip");a.href="#"+encodeURIComponent(H.openQuestions);a.textContent=(byId[H.openQuestions]||{}).title||"Open questions";oq.appendChild(a);box.appendChild(oq);
 }
+function covFresh(lv){if(!lv||lv==="pending")return {cls:"stale",txt:"not validated"};var d=Date.parse(lv);if(isNaN(d))return {cls:"",txt:String(lv)};var days=Math.round((Date.now()-d)/86400000);return {cls:days>120?"stale":"",txt:lv+(days>120?" · stale":"")};}
+function covBadge(ds){ds=(ds||"").toLowerCase();var cls=(ds==="done"||ds==="shipped"||ds==="verified")?"b-approved":ds==="in-progress"?"b-in-review":"b-draft";return '<span class="badge '+cls+'">'+(ds||"—")+'</span>';}
+function renderCoverage(){
+  var box=$("#covBody");if(!box)return;
+  var caps=D.items.filter(function(i){return i.type==="capability-spec"&&i.id!=="gt-03-index";}).sort(function(a,b){return a.title.localeCompare(b.title);});
+  var stories=D.items.filter(function(i){return i.type==="user-story";});
+  var byCap={};stories.forEach(function(s){var c=s.capability||"_none";(byCap[c]=byCap[c]||[]).push(s);});
+  var done=0,prog=0,back=0,stale=0;
+  stories.forEach(function(s){var ds=(s.delivery_status||"").toLowerCase();if(ds==="done"||ds==="shipped"||ds==="verified")done++;else if(ds==="in-progress")prog++;else back++;if(!s.last_validated||s.last_validated==="pending")stale++;});
+  var sum=$("#covSummary");if(sum){sum.innerHTML="";[["shipped",done,"var(--good)"],["in progress",prog,"var(--live)"],["backlog / unset",back,"var(--dim)"],["not validated",stale,"var(--strike)"]].forEach(function(c){var d=ce("div","hcard");d.innerHTML='<div class="hn"></div><div class="hl"></div>';d.querySelector(".hn").textContent=c[1];d.querySelector(".hn").style.color=c[2];d.querySelector(".hl").textContent=c[0];sum.appendChild(d);});}
+  var h="";
+  caps.forEach(function(c){
+    var ss=(byCap[c.id]||[]).sort(function(a,b){return a.title.localeCompare(b.title);});
+    h+='<div class="covcap"><div class="covcap-h"><a href="#'+encodeURIComponent(c.id)+'">'+escHtml(c.title)+'</a> <span class="pill">'+ss.length+(ss.length===1?" story":" stories")+'</span></div>';
+    if(!ss.length)h+='<div class="c-dim" style="padding:4px 0 2px">No user stories yet.</div>';
+    else{h+='<table class="dtable"><thead><tr><th>Story</th><th>Delivery</th><th>Spec status</th><th>Validated</th></tr></thead><tbody>';
+      ss.forEach(function(s){var f=covFresh(s.last_validated);h+='<tr class="drow" data-id="'+s.id+'"><td>'+escHtml(s.title)+'</td><td>'+covBadge(s.delivery_status)+'</td><td><span class="badge b-'+s.status+'">'+(s.status||"—")+'</span></td><td class="c-dim'+(f.cls==="stale"?" covstale":"")+'">'+escHtml(f.txt)+'</td></tr>';});
+      h+='</tbody></table>';}
+    h+='</div>';
+  });
+  if(byCap._none&&byCap._none.length){h+='<div class="covcap"><div class="covcap-h">Unassigned to a capability <span class="pill">'+byCap._none.length+'</span></div><table class="dtable"><tbody>';byCap._none.forEach(function(s){var f=covFresh(s.last_validated);h+='<tr class="drow" data-id="'+s.id+'"><td>'+escHtml(s.title)+'</td><td>'+covBadge(s.delivery_status)+'</td><td><span class="badge b-'+s.status+'">'+(s.status||"—")+'</span></td><td class="c-dim'+(f.cls==="stale"?" covstale":"")+'">'+escHtml(f.txt)+'</td></tr>';});h+='</tbody></table></div>';}
+  box.innerHTML=h;
+  [].forEach.call(box.querySelectorAll(".drow"),function(tr){tr.onclick=function(){location.hash=tr.getAttribute("data-id");};});
+}
 function mnode(id,x,y,center){
   var n=byId[id];if(!n)return;
   var d=ce("div","mnode"+(center?" center":""));d.style.left=x+"px";d.style.top=y+"px";
@@ -354,6 +382,7 @@ function show(id){
   else if(id==="table"){actExc("view-table");bc.innerHTML='<a href="#overview">Overview</a> › Browse';renderTable();}
   else if(id==="health"){actExc("view-health");bc.innerHTML='<a href="#overview">Overview</a> › Health & gaps';renderHealth();}
   else if(id==="decisions"){actExc("view-decisions");bc.innerHTML='<a href="#overview">Overview</a> › Decisions & open questions';renderDecisions();}
+  else if(id==="coverage"){actExc("view-coverage");bc.innerHTML='<a href="#overview">Overview</a> › Coverage';renderCoverage();}
   else if(id==="ingest"){actExc("view-ingest");bc.innerHTML='<a href="#overview">Overview</a> › Ingest';}
   else if(id==="map"){actExc("view-map");bc.innerHTML='<a href="#overview">Overview</a> › Relationship map';buildMap(mapCenter);}
   else{var el=document.getElementById("art-"+id);if(el){[].forEach.call(document.querySelectorAll(".art,.view"),function(s){s.classList.remove("active");});el.classList.add("active");var it=byId[id];var sec=it?areaLabel(it.part):"";bc.innerHTML='<a href="#overview">Overview</a> › '+sec+' › '+(it?it.title:id);}else{actExc("view-overview");id="overview";}}
@@ -493,8 +522,11 @@ function getRecommendation(id,d){var el=$("#decRecBody");if(el)el.textContent="G
 function askAboutDecision(id,d,q){var body=$("#decRecBody");if(body){var qd=ce("div","decqa");qd.textContent="You: "+q;body.appendChild(qd);body.scrollTop=body.scrollHeight;}var inp=$("#decFollow");if(inp)inp.value="";var hist=recCache[id]?[{role:"user",content:"About decision "+id+": "+d.title},{role:"assistant",content:recCache[id].text}]:[];callAsk(q,hist,function(ans){if(body){var ad=ce("div","decqa bot");ad.innerHTML=linkifyCites(ans||"—");body.appendChild(ad);body.scrollTop=body.scrollHeight;}},function(err){if(body){var ad=ce("div","decqa bot");ad.textContent=err;body.appendChild(ad);}});}
 function openDecide(id){
   var box=$("#decDetail");if(!box)return;var d=decById(id);if(!d)return;box.hidden=false;
+  var _art=document.getElementById("art-"+id),_doc=_art&&_art.querySelector(".doc"),ddBody=_doc?_doc.innerHTML:"";
   box.innerHTML='<div class="ddhead"><div><div class="pill">'+(d.num||"")+' · '+id+'</div><h3>'+escHtml(d.title)+'</h3></div><a class="btnlite" href="#'+encodeURIComponent(id)+'">Open full page</a></div>'
     +'<div class="ddmeta"><span class="badge b-'+d.status+'">'+(d.status||"—")+'</span> <span class="c-dim">owner: '+escHtml(d.owner||"—")+(assignedToMe(d)?" · assigned to you":"")+'</span></div>'
+    +'<div class="ddwhat"><div class="ddwhat-h">What you’re deciding</div><div class="ddwhat-b">'+(ddBody||'<span class="c-dim">Open the full page to read the decision.</span>')+'</div></div>'
+    +'<div class="ddcheck"><div class="ddwhat-h">What to check before you decide</div><ul><li>Does the <b>Decision</b> match what we actually want to do?</li><li>Is the <b>rationale (Why)</b> sound and still true?</li><li>Are the <b>consequences / tradeoffs</b> acceptable?</li><li>Does it <b>conflict with any approved Ground Truth</b>? (check the linked artifacts)</li><li>Are the <b>open questions</b> resolved — or fine to defer?</li></ul></div>'
     +'<div class="decrec"><div class="decrec-h"><span>✦ Claude’s recommendation</span><span class="pill">grounded in the Ground Truth</span></div><div id="decRecBody" class="decrec-b"></div><div class="decfollow"><input id="decFollow" placeholder="Ask a follow-up about this decision…"><button class="btnlite" id="decFollowBtn">Ask</button></div></div>'
     +'<div class="cfield"><label>Your rationale</label><textarea id="decRationale" placeholder="Why you’re deciding this…"></textarea><button class="btnlite" id="decUseRec" type="button" style="margin-top:6px">Use recommendation as rationale</button></div>'
     +'<div class="decact"><button class="btnapprove" data-o="approve">Approve</button><button class="btnchanges" data-o="request-changes">Request changes</button><button class="btnreject" data-o="reject">Reject</button><button class="btnlite" id="decClose" type="button">Close</button></div>'
@@ -582,10 +614,35 @@ function addBot(text,sources){
     s.innerHTML=html;d.appendChild(s);}
   log.appendChild(d);log.scrollTop=log.scrollHeight;return d;
 }
+function mdEsc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function mdRender(src){
+  var BT=String.fromCharCode(96),s=mdEsc(src),blocks=[];
+  s=s.replace(new RegExp(BT+BT+BT+"([\\s\\S]*?)"+BT+BT+BT,"g"),function(m,c){blocks.push(c.replace(/^\\n/,""));return "\\u0001"+(blocks.length-1)+"\\u0001";});
+  function inl(t){
+    t=t.replace(new RegExp(BT+"([^"+BT+"]+)"+BT,"g"),function(m,c){return "<code>"+c+"</code>";});
+    t=t.replace(/\\[([^\\]]+)\\]\\((https?:[^)\\s]+)\\)/g,function(m,tx,u){return '<a href="'+u+'" target="_blank" rel="noopener">'+tx+"</a>";});
+    t=t.replace(/\\*\\*([^*]+)\\*\\*/g,"<strong>$1</strong>");
+    t=t.replace(/(^|[^*])\\*([^*\\n]+)\\*/g,"$1<em>$2</em>");
+    return t;
+  }
+  var lines=s.split(/\\n/),out=[],list=null,para=[];
+  function fp(){if(para.length){out.push("<p>"+inl(para.join(" "))+"</p>");para=[];}}
+  function cl(){if(list){out.push("</"+list+">");list=null;}}
+  for(var i=0;i<lines.length;i++){
+    var t=lines[i].trim();
+    if(!t){fp();cl();continue;}
+    var h=t.match(/^(#{1,6})\\s+(.*)$/);
+    if(h){fp();cl();var lv=Math.min(6,h[1].length+3);out.push("<h"+lv+">"+inl(h[2])+"</h"+lv+">");continue;}
+    var u=t.match(/^[-*]\\s+(.*)$/),o=t.match(/^\\d+\\.\\s+(.*)$/);
+    if(u){fp();if(list!=="ul"){cl();out.push("<ul>");list="ul";}out.push("<li>"+inl(u[1])+"</li>");continue;}
+    if(o){fp();if(list!=="ol"){cl();out.push("<ol>");list="ol";}out.push("<li>"+inl(o[1])+"</li>");continue;}
+    para.push(t);
+  }
+  fp();cl();
+  return out.join("").replace(/\\u0001(\\d+)\\u0001/g,function(m,n){return "<pre><code>"+blocks[+n]+"</code></pre>";});
+}
 function linkifyCites(text){
-  var safe=String(text==null?"":text).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-  safe=safe.replace(/\\[([a-z0-9][a-z0-9\\-]+)\\]/g,function(m,id){return byId[id]?'<a class="askcite" href="#'+encodeURIComponent(id)+'">['+citeLabel(id)+']</a>':m;});
-  return safe.replace(/\\n/g,"<br>");
+  return mdRender(text).replace(/\\[([a-z0-9][a-z0-9\\-]+)\\]/g,function(m,id){return byId[id]?'<a class="askcite" href="#'+encodeURIComponent(id)+'">['+citeLabel(id)+']</a>':m;});
 }
 function localAnswer(q){
   var qts=(q.toLowerCase().match(/[a-z0-9\\-]{3,}/g)||[]);
@@ -763,6 +820,20 @@ h1.t{font-size:27px;margin:.25em 0 .35em;letter-spacing:-.01em}.lead{color:var(-
 .decrec-h{display:flex;align-items:center;gap:8px;margin-bottom:7px}.decrec-h span:first-child{color:var(--live);font-weight:600;font-size:13px}
 .decrec-b{font-size:13.5px;line-height:1.5;color:var(--paper);max-height:260px;overflow:auto}.decrec-b a{color:var(--live)}
 .decqa{font-size:13px;line-height:1.45;margin:8px 0;padding:7px 10px;border-radius:9px;background:var(--ink2)}.decqa.bot{border-left:2px solid var(--live)}
+/* rendered markdown inside Ask answers + the Decide recommendation */
+.askmsg.bot p,.decrec-b p,.decqa.bot p{margin:.45em 0}.askmsg.bot p:first-child,.decrec-b p:first-child,.decqa.bot p:first-child{margin-top:0}.askmsg.bot p:last-child,.decrec-b p:last-child,.decqa.bot p:last-child{margin-bottom:0}
+.askmsg.bot ul,.askmsg.bot ol,.decrec-b ul,.decrec-b ol,.decqa.bot ul,.decqa.bot ol{margin:.45em 0;padding-left:20px}.askmsg.bot li,.decrec-b li,.decqa.bot li{margin:2px 0}
+.askmsg.bot h4,.askmsg.bot h5,.askmsg.bot h6,.decrec-b h4,.decrec-b h5,.decrec-b h6{margin:.7em 0 .3em;font-size:13.5px;font-family:'Poppins',sans-serif;color:#fff}
+.askmsg.bot code,.decrec-b code,.decqa.bot code{background:var(--ink2);border:1px solid var(--line);padding:0 4px;border-radius:4px;font-size:12px;font-family:'JetBrains Mono',monospace}
+.askmsg.bot pre,.decrec-b pre,.decqa.bot pre{background:var(--ink);border:1px solid var(--line);border-radius:7px;padding:9px;overflow:auto;margin:.5em 0}.askmsg.bot pre code,.decrec-b pre code,.decqa.bot pre code{border:none;background:none;padding:0}
+.askmsg.bot strong,.decrec-b strong,.decqa.bot strong{color:#fff;font-weight:600}
+/* Decide panel: what you're deciding + what to check */
+.ddwhat{margin:12px 0}.ddwhat-h{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+.ddwhat-b{background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;max-height:300px;overflow:auto;font-size:13.5px;line-height:1.55}
+.ddwhat-b h1,.ddwhat-b h2,.ddwhat-b h3{font-size:15px;margin:.6em 0 .3em;border:0;padding:0;font-family:'Poppins',sans-serif}.ddwhat-b h1:first-child,.ddwhat-b h2:first-child,.ddwhat-b p:first-child{margin-top:0}.ddwhat-b ul,.ddwhat-b ol{padding-left:20px;margin:.4em 0}.ddwhat-b li{margin:2px 0}.ddwhat-b code{background:var(--ink3);padding:0 4px;border-radius:4px;font-size:12px}.ddwhat-b table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12.5px}.ddwhat-b th,.ddwhat-b td{border:1px solid var(--line);padding:5px 7px;text-align:left}
+.ddcheck{background:rgba(255,200,63,.06);border:1px solid var(--line);border-left:3px solid var(--live);border-radius:8px;padding:10px 14px;margin:12px 0}.ddcheck ul{margin:6px 0 0;padding-left:18px}.ddcheck li{margin:3px 0;font-size:13px;color:var(--paper)}.ddcheck b{color:#fff}
+/* Coverage view */
+.covcap{margin:18px 0}.covcap-h{display:flex;align-items:center;gap:10px;font-weight:600;font-size:14.5px;margin-bottom:7px;font-family:'Poppins',sans-serif}.covcap-h a{color:var(--paper)}.covstale{color:var(--strike)!important}
 .decfollow{display:flex;gap:7px;margin-top:9px}.decfollow input{flex:1;background:var(--ink2);border:1px solid var(--line);color:var(--paper);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit}
 .decact{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 .btnapprove,.btnchanges,.btnreject{border:none;border-radius:8px;padding:8px 14px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit}
@@ -780,6 +851,7 @@ ${authUI}
     ${mapView}
     ${decisionsView}
     ${ingestView}
+    ${coverageView}
     ${articles}
   </main>
 </div>
