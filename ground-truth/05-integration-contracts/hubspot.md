@@ -59,7 +59,17 @@ real time. Losing any of these on the rebuild is a regression.
 - BR-8: Slack messages contain lead info only — never internal revenue/deal-size/anti-ICP data.
 - Scheduler embed must be **accessible** (keyboard + screen reader) and not tank Core Web Vitals.
 
+## Collected Forms — how leads actually arrive (verified 2026-06-24)
+- Portal is **`3965030`**. The contact form is **not** an embedded HubSpot form and has **no form GUID** —
+  HubSpot **Collected Forms** (loaded by `//js-na1.hs-scripts.com/3965030.js`) captures the submit and maps
+  fields **by name**.
+- A collected form's identity is its **CSS selector** (`#id .firstClass`). To land in the **same** form as
+  the legacy Webflow site — and fire the **same Slack workflow** — the rebuilt form reuses the selector
+  **`#v3-contact-form .contact-form-v3`** and the same field names. A different id/class = a *new* collected
+  form and the Slack automation will not fire. (Decision 0018.)
+- Capture may also be **domain/URL-scoped**; parity is guaranteed once served from the production domain.
+
 ## Open questions
-- Exact HubSpot **portal ID / form IDs / Meetings link** and the target **Slack channel** (→ Sales; OQ-1 owner).
+- Exact HubSpot **portal ID / form IDs / Meetings link** and the target **Slack channel** (→ Sales; OQ-1 owner). *(Resolved: portal `3965030`; capture = Collected Forms `#v3-contact-form .contact-form-v3`, no form GUID — see above. Still open: Meetings link + Slack channel/workflow scope.)*
 - Consent/cookie handling for HubSpot tracking.
 - Keep HubSpot-native scheduler embed vs. a custom front-end calling HubSpot APIs.

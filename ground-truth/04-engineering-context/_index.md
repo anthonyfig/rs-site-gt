@@ -31,6 +31,7 @@ repo-root [`CLAUDE.md`](../../CLAUDE.md); this is the detail.
 | [Security & Compliance](security-and-compliance.md) | SOC 2-aligned posture, Explorer auth, PII/secrets handling, and the trust layer for regulated buyers |
 | [SEO & LLM Discovery](seo-and-llm-discovery.md) | Search + generative-engine discoverability strategy and rules |
 | [Design System](design-system.md) | Brand tokens, type, components & assets — the quality bar generated UI must meet |
+| [Deployment & Build](deployment-and-build.md) | Vercel env-var contract, Sanity build-time read, publish→rebuild, Studio deploy |
 
 ## Principles
 - **Derive from Ground Truth.** Content and structure come from `ground-truth/`, not hard-coded copy.
