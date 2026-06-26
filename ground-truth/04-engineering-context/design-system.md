@@ -9,9 +9,9 @@ confidence: high
 sources:
   - "Rootstrap Design System (provided Jun 2026) — /design-system/ (standalone reference + assets)"
   - "Figma — RS Website 2026 V3 (file YWgx5Y3TkXGAMcrPcfGqHp): lime/pink explored, NOT adopted — gold retained (Decision 0014)"
-updated: 2026-06-23
-last_validated: "2026-06-23"
-validated_by: "Anthony — gold retained"
+updated: 2026-06-26
+last_validated: "2026-06-26"
+validated_by: "Anthony — gold retained; accent-swap-maps-every-element clarified (rs-site#122/#123)"
 applies_to: ["marketing-site", "explorer"]
 related: ["gt-04-stack-and-architecture", "gt-04-seo-and-llm-discovery", "gt-07-0014-design-system-2026-v3"]
 tags: ["design", "brand", "tokens", "standards"]
@@ -30,6 +30,7 @@ The brand's design standards — the **quality bar agents and engineers generate
 - **Secondary — periwinkle:** `#778FED` (`--rs-secondary-500`).
 - **Neutrals:** `#F5F5F5` (100) → `#191A1B` (900, near-black). Dark surface = neutral-900; light surface = white.
 - **No pink / no gradient:** the Figma V3 frames show a gold→pink gradient — **not used** (Decision 0015). Gold is the only accent; page *layouts* follow the Figma frames.
+- **The accent swap maps EVERY element, not just the obvious ones.** Wherever a Figma frame draws an element in the rejected accent colours — the dark→purple→lime angular gradient, the gold→pink gradient, or the periwinkle illustration colour `#778FED` — that element is recoloured to flat gold `#FFC83F` in code. This applies to **all** affected elements, including **borders, dividers, rules, strokes, connectors, and glyphs** — not only fills or the element a task happens to name. **Never substitute a default neutral token** (e.g. `--rs-line` / `--rs-border`) for an element Figma draws in the accent. **Sibling decorative elements that Figma draws the same colour must be the same colour in code** (e.g. a connector arrow and its column divider — both accent → both gold). Verify per-element with `scripts/figma.mjs inspect <node>` (reports each node's `border:#hex`/stroke), not just the called-out element.
 - Semantic tokens for both **light and dark** themes: `--rs-bg`, `--rs-bg-elevated`, `--rs-fg`, `--rs-fg-muted`, `--rs-border`, `--rs-link`.
 
 **Type**
